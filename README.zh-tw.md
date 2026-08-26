@@ -6,6 +6,13 @@
 
 透過 Linux 原生 `/dev/hidraw` 節點與 Logitech **HID++ 2.0** 協議直接通訊，無需官方 G HUB，即可在 Omarchy 桌面環境中享有完整的遙測讀取、靈敏度、回報率與類比開關調校功能。
 
+## 需求
+
+- Omarchy Quattro。
+- 已安裝 Bun，且 Omarchy Shell 的 `PATH` 可找到 `bun`。
+
+若 Bun 不在 Shell 的 `PATH` 中，請在外掛設定的 **Path to Bun** 填入 Bun 執行檔的絕對路徑。
+
 ---
 
 ## 功能

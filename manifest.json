@@ -19,7 +19,8 @@
     "defaultSection": "right",
     "defaults": {
       "pollInterval": 15,
-      "showPercentage": true
+      "showPercentage": true,
+      "bunPath": "bun"
     },
     "schema": [
       {
@@ -35,6 +36,13 @@
         "label": "Poll interval (seconds)",
         "description": "How often to query the mouse over HID++.",
         "defaultValue": 15
+      },
+      {
+        "key": "bunPath",
+        "type": "path",
+        "label": "Path to Bun",
+        "description": "Bun executable or absolute path used to run logitech-g-daemon.ts.",
+        "defaultValue": "bun"
       }
     ]
   }

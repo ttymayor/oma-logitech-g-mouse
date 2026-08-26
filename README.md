@@ -6,6 +6,13 @@ An [Omarchy Quattro](https://omarchyplugins.com/develop.html) bar widget and con
 
 Communicates directly with the Linux `/dev/hidraw` device interface via the Logitech **HID++ 2.0** protocol, providing complete telemetry and hardware customization without requiring Logitech G HUB.
 
+## Requirements
+
+- Omarchy Quattro.
+- Bun installed and available as `bun` on the Omarchy shell `PATH`.
+
+If Bun is installed outside the shell `PATH`, set **Path to Bun** in the plugin settings to its absolute executable path.
+
 ---
 
 ## Features

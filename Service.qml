@@ -33,7 +33,7 @@ Item {
     }
 
     readonly property string statePath: "/tmp/omarchy-logitech-g-mouse.json"
-    readonly property string bunPath: "/home/tantuyu/.local/share/mise/installs/bun/latest/bin/bun"
+    readonly property string bunPath: String(settings && settings.bunPath ? settings.bunPath : "bun")
     readonly property string daemonPath: Quickshell.env("HOME") + "/.config/omarchy/plugins/tantuyu.logitech-g-mouse/logitech-g-daemon.ts"
 
     function refresh() {
