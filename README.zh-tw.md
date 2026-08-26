@@ -48,6 +48,14 @@ omarchy pkg install
   - 每個滑桿下方有數字刻度。
   - 樂觀狀態更新可避免硬體寫入期間滑桿回彈。
 
+
+## 截圖
+
+### Sensor 分頁
+
+![Sensor 分頁：電量、DPI 與回報率設定](screenshot-1.png)
+
+`Buttons (Analog HITS)` 分頁的截圖預計將新增為 `screenshot-2.png`。
 ---
 
 ## 安裝與解除安裝（Install & Uninstall）
