@@ -1,10 +1,10 @@
-# Logitech G PRO X2 SUPERSTRIKE — Omarchy 外掛
+# 羅技 G 系列滑鼠 — Omarchy 外掛 (oma-logitech-g-mouse)
 
 [English](README.md) | **繁體中文**
 
-專為 **Logitech G PRO X2 SUPERSTRIKE** 電競類比滑鼠設計的 [Omarchy Quattro](https://omarchyplugins.com/develop.html) 狀態列外掛（Bar Widget + Control Panel）。
+專為 **Logitech G 系列電競滑鼠**（包含 G PRO X2 SUPERSTRIKE、G PRO X SUPERLIGHT 1/2、G502 系列等）設計的 [Omarchy Quattro](https://omarchyplugins.com/develop.html) 狀態列外掛（Bar Widget + Control Panel）。
 
-透過 Linux 原生 `/dev/hidraw` 節點與 Logitech **HID++ 2.0** 協議直接通訊，無需官方 G HUB，即可在 Omarchy 桌面環境中享有完整的遙測讀取與硬體調校功能。
+透過 Linux 原生 `/dev/hidraw` 節點與 Logitech **HID++ 2.0** 協議直接通訊，無需官方 G HUB，即可在 Omarchy 桌面環境中享有完整的遙測讀取、靈敏度、回報率與類比開關調校功能。
 
 ---
 
@@ -22,7 +22,7 @@
   - **DPI 常用預設**：5 顆 100% 滿版等寬按鈕（`800` / `1200` / `1600` / `2400` / `3200`），點擊即設。
   - **DPI 連續微調滑桿**：支援從 `100` 至最高 `32,000 DPI` 連續無級微調（步進 50 DPI），附 `100` / `16,000` / `32,000` 刻度錨點。
   - **回報率設定（Polling Rate）**：7 顆 100% 滿版等寬按鈕（`125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz`），官方原生協議即時切換。
-- 🏷️ **Tab 2: `Buttons (Analog HITS)`（左右鍵類比開關全覽）**
+- 🏷️ **Tab 2: `Buttons (Analog HITS)`** *(若滑鼠具備類比開關則自動顯示)*
   - **左鍵與右鍵獨立雙區**，各具備 3 組原生單色滑桿：
     1. **Actuation Point（下壓觸發深度）**：`1` ~ `10` 級（0.1mm ~ 1.0mm 觸發行程）
     2. **Rapid Trigger（快速復位重置行程）**：`1` ~ `5` 級（0.1mm ~ 0.5mm 抬起即重置）
@@ -40,7 +40,7 @@
 若本專案已推送至公開或私有 Git 倉庫，可直接一行指令安裝並啟用：
 
 ```bash
-omarchy plugin add https://github.com/<username>/oma-g-pro-x2-superstrike.git --enable
+omarchy plugin add https://github.com/<username>/oma-logitech-g-mouse.git --enable
 omarchy restart shell
 ```
 
@@ -49,15 +49,15 @@ omarchy restart shell
 
 ```bash
 # 1. 複製外掛檔案至 Omarchy 使用者外掛目錄
-mkdir -p ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
-cp -a * ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/
+mkdir -p ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
+cp -a * ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/
 
 # 2. 驗證外掛結構規範
-omarchy plugin validate ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
+omarchy plugin validate ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
 
 # 3. 讓 Shell 重新掃描外掛清單並在狀態列右側啟用
 omarchy-shell shell rescanPlugins
-omarchy plugin enable tantuyu.g-pro-x2-superstrike --section right
+omarchy plugin enable tantuyu.logitech-g-mouse --section right
 
 # 4. 重啟 Omarchy Shell 載入 QML 元件
 omarchy restart shell
@@ -70,21 +70,19 @@ omarchy restart shell
 #### 方法 A：透過 Omarchy CLI 移除
 ```bash
 # 停用外掛並從系統中完全移除
-omarchy plugin disable tantuyu.g-pro-x2-superstrike
-omarchy plugin remove tantuyu.g-pro-x2-superstrike --yes
+omarchy plugin disable tantuyu.logitech-g-mouse
+omarchy plugin remove tantuyu.logitech-g-mouse --yes
 omarchy restart shell
 ```
 
 #### 方法 B：手動完全清除
-若要手動完全清理所有檔案與暫存快取：
-
 ```bash
 # 1. 停用外掛
-omarchy plugin disable tantuyu.g-pro-x2-superstrike
+omarchy plugin disable tantuyu.logitech-g-mouse
 
 # 2. 刪除外掛目錄與暫存狀態快取檔
-rm -rf ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
-rm -f /tmp/omarchy-superstrike-status.json
+rm -rf ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
+rm -f /tmp/omarchy-logitech-g-mouse.json
 
 # 3. 通知 Shell 重新掃描並重啟
 omarchy-shell shell rescanPlugins
@@ -95,56 +93,52 @@ omarchy restart shell
 
 ## 🛠️ 開發與修改套用
 
-如果你自行修改了外掛檔案，可依修改類型採取以下方式套用：
-
 - **修改了 QML / 介面（`Panel.qml`、`BarWidget.qml`、`Model.js`）**：
   因為 Omarchy 關閉了 QML 自動檔案監聽以維持系統穩定，修改後**必須重啟 Shell**：
   ```bash
-  cp -a . ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/ && omarchy restart shell
+  cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
   ```
-- **只修改了 TypeScript 驅動（`superstrike-daemon.ts`）**：
+- **只修改了 TypeScript 驅動（`logitech-g-daemon.ts`）**：
   **不需要重啟 Shell**！下一次點擊按鈕或定時輪詢時會由 Bun 自動即時載入執行。
 - **一鍵驗證、同步與重啟指令**：
   ```bash
-  omarchy plugin validate . && cp -a . ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/ && omarchy restart shell
+  omarchy plugin validate . && cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
   ```
 
 ---
 
 ## 💻 獨立 CLI 命令列控制
 
-核心驅動腳本 `superstrike-daemon.ts` 亦支援作為獨立命令列工具使用：
+核心驅動腳本 `logitech-g-daemon.ts` 亦支援作為獨立命令列工具使用：
 
 ```bash
 # 讀取完整狀態（JSON 輸出）
-bun run superstrike-daemon.ts --once
+bun run logitech-g-daemon.ts --once
 
 # 設定 DPI（支援 100 ~ 32,000）
-bun run superstrike-daemon.ts --set-dpi 1600
+bun run logitech-g-daemon.ts --set-dpi 1600
 
 # 設定回報率（125 / 250 / 500 / 1000 / 2000 / 4000 / 8000 Hz）
-bun run superstrike-daemon.ts --set-rate 4000
+bun run logitech-g-daemon.ts --set-rate 4000
 
 # 設定下壓觸發點 Actuation Point（1~10 級）
-bun run superstrike-daemon.ts --set-actuation 4 --left
-bun run superstrike-daemon.ts --set-actuation 6 --right
+bun run logitech-g-daemon.ts --set-actuation 4 --left
+bun run logitech-g-daemon.ts --set-actuation 6 --right
 
 # 設定快速復位行程 Rapid Trigger（1~5 級）
-bun run superstrike-daemon.ts --set-rt 2 --left
+bun run logitech-g-daemon.ts --set-rt 2 --left
 
 # 設定震動點擊回饋 Click Haptics（1~6 級）
-bun run superstrike-daemon.ts --set-haptics 5 --left
+bun run logitech-g-daemon.ts --set-haptics 5 --left
 ```
 
 ---
 
 ## 🔬 底層 HID++ 2.0 協議對照
 
-本外掛逆向並實作了 Logitech G PRO X2 Superstrike 的硬體功能表：
-
 | 功能 | Feature ID | Index | 備註 |
 | :--- | :--- | :--- | :--- |
-| **Device Name** | `0x0005` | `0x03` | 行銷型號名稱動態讀取（如 `PRO X2 SUPERSTRIKE`） |
+| **Device Name** | `0x0005` | `0x03` | 行銷型號名稱動態讀取（如 `PRO X2 SUPERSTRIKE`、`PRO X SUPERLIGHT`） |
 | **Unified Battery** | `0x1004` | `0x06` | 電量百分比、電量等級、即時充電狀態 |
 | **Extended DPI** | `0x2202` | `0x09` | 感應器參數讀寫（支援至 32K DPI）與 LOD 狀態 |
 | **Onboard Profiles** | `0x8100` | `0x0e` | 板載設定檔切換、Host Mode 模式解鎖 |
@@ -154,8 +148,6 @@ bun run superstrike-daemon.ts --set-haptics 5 --left
 ---
 
 ## 🔒 權限與 Udev 規則
-
-若要在非 root 使用者權限下存取 `/dev/hidraw*`，建議安裝 udev 規則：
 
 ```bash
 sudo tee /etc/udev/rules.d/42-logitech-superstrike.rules << 'EOF'

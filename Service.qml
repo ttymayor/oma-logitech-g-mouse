@@ -28,136 +28,129 @@ Item {
     property string lastError: ""
 
     readonly property int pollIntervalSec: {
-        var v = settings ? settings.pollInterval : undefined;
-        return Math.max(5, Number(v) || 15);
+        var v = settings ? settings.pollInterval : undefined
+        return Math.max(5, Number(v) || 15)
     }
 
-    readonly property string statePath: "/tmp/omarchy-superstrike-status.json"
+    readonly property string statePath: "/tmp/omarchy-logitech-g-mouse.json"
     readonly property string bunPath: "/home/tantuyu/.local/share/mise/installs/bun/latest/bin/bun"
-    readonly property string daemonPath: Quickshell.env("HOME") + "/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/superstrike-daemon.ts"
+    readonly property string daemonPath: Quickshell.env("HOME") + "/.config/omarchy/plugins/tantuyu.logitech-g-mouse/logitech-g-daemon.ts"
 
     function refresh() {
-        stateFile.reload();
+        stateFile.reload()
         if (!pollProc.running) {
-            pollProc.running = true;
+            pollProc.running = true
         }
     }
 
     function applyStatus(status) {
-        if (!status)
-            return;
-        connected = (status.connected === true);
-        deviceName = String(status.deviceName || "Logitech G Mouse");
-        batteryPercentage = Number(status.batteryPercentage);
-        batteryLevel = String(status.batteryLevel || "unknown");
-        batteryStatus = String(status.batteryStatus || "unknown");
-        dpiX = Number(status.dpiX || 0);
-        defaultDpiX = Number(status.defaultDpiX || 0);
-        dpiY = Number(status.dpiY || 0);
-        defaultDpiY = Number(status.defaultDpiY || 0);
-        dpiMin = Number(status.dpiMin || 100);
-        dpiMax = Number(status.dpiMax || 32000);
-        dpiPresets = status.dpiPresets || [800, 1200, 1600, 2400, 3200];
-        reportRate = Number(status.reportRate || 1000);
-        lod = String(status.lod || "unknown");
-        hasHits = !!status.hasHits;
-        hitsLeft = status.hitsLeft || Model.defaultButton();
-        hitsRight = status.hitsRight || Model.defaultButton();
-        lastError = String(status.error || "");
+        if (!status) return
+        connected = (status.connected === true)
+        deviceName = String(status.deviceName || "Logitech G Mouse")
+        batteryPercentage = Number(status.batteryPercentage)
+        batteryLevel = String(status.batteryLevel || "unknown")
+        batteryStatus = String(status.batteryStatus || "unknown")
+        dpiX = Number(status.dpiX || 0)
+        defaultDpiX = Number(status.defaultDpiX || 0)
+        dpiY = Number(status.dpiY || 0)
+        defaultDpiY = Number(status.defaultDpiY || 0)
+        dpiMin = Number(status.dpiMin || 100)
+        dpiMax = Number(status.dpiMax || 32000)
+        dpiPresets = status.dpiPresets || [800, 1200, 1600, 2400, 3200]
+        reportRate = Number(status.reportRate || 1000)
+        lod = String(status.lod || "unknown")
+        hasHits = !!status.hasHits
+        hitsLeft = status.hitsLeft || Model.defaultButton()
+        hitsRight = status.hitsRight || Model.defaultButton()
+        lastError = String(status.error || "")
     }
 
     function applyLine(raw) {
-        var parsed = Model.parseStatus(raw);
-        applyStatus(parsed);
+        var parsed = Model.parseStatus(raw)
+        applyStatus(parsed)
     }
 
     // Optimistic UI updates
     function setActuation(btn, level) {
-        var act = Math.max(1, Math.min(10, Math.round(level)));
+        var act = Math.max(1, Math.min(10, Math.round(level)))
         if (btn === 0) {
             hitsLeft = {
                 actuation: act,
                 rapidTrigger: hitsLeft.rapidTrigger,
                 haptics: hitsLeft.haptics
-            };
+            }
         } else {
             hitsRight = {
                 actuation: act,
                 rapidTrigger: hitsRight.rapidTrigger,
                 haptics: hitsRight.haptics
-            };
+            }
         }
 
-        var args = [root.bunPath, "run", root.daemonPath, "--set-actuation", String(act)];
-        if (btn === 0)
-            args.push("--left");
-        else if (btn === 1)
-            args.push("--right");
-        cmdProc.command = args;
-        cmdProc.running = true;
+        var args = [root.bunPath, "run", root.daemonPath, "--set-actuation", String(act)]
+        if (btn === 0) args.push("--left")
+        else if (btn === 1) args.push("--right")
+        cmdProc.command = args
+        cmdProc.running = true
     }
 
     function setRapidTrigger(btn, level) {
-        var rt = Math.max(1, Math.min(5, Math.round(level)));
+        var rt = Math.max(1, Math.min(5, Math.round(level)))
         if (btn === 0) {
             hitsLeft = {
                 actuation: hitsLeft.actuation,
                 rapidTrigger: rt,
                 haptics: hitsLeft.haptics
-            };
+            }
         } else {
             hitsRight = {
                 actuation: hitsRight.actuation,
                 rapidTrigger: rt,
                 haptics: hitsRight.haptics
-            };
+            }
         }
 
-        var args = [root.bunPath, "run", root.daemonPath, "--set-rt", String(rt)];
-        if (btn === 0)
-            args.push("--left");
-        else if (btn === 1)
-            args.push("--right");
-        cmdProc.command = args;
-        cmdProc.running = true;
+        var args = [root.bunPath, "run", root.daemonPath, "--set-rt", String(rt)]
+        if (btn === 0) args.push("--left")
+        else if (btn === 1) args.push("--right")
+        cmdProc.command = args
+        cmdProc.running = true
     }
 
     function setHaptics(btn, level) {
-        var hap = Math.max(1, Math.min(6, Math.round(level)));
+        var hap = Math.max(1, Math.min(6, Math.round(level)))
         if (btn === 0) {
             hitsLeft = {
                 actuation: hitsLeft.actuation,
                 rapidTrigger: hitsLeft.rapidTrigger,
                 haptics: hap
-            };
+            }
         } else {
             hitsRight = {
                 actuation: hitsRight.actuation,
                 rapidTrigger: hitsRight.rapidTrigger,
                 haptics: hap
-            };
+            }
         }
 
-        var args = [root.bunPath, "run", root.daemonPath, "--set-haptics", String(hap)];
-        if (btn === 0)
-            args.push("--left");
-        else if (btn === 1)
-            args.push("--right");
-        cmdProc.command = args;
-        cmdProc.running = true;
+        var args = [root.bunPath, "run", root.daemonPath, "--set-haptics", String(hap)]
+        if (btn === 0) args.push("--left")
+        else if (btn === 1) args.push("--right")
+        cmdProc.command = args
+        cmdProc.running = true
     }
 
     function setDpi(dpi) {
-        dpiX = dpi;
-        dpiY = dpi;
-        cmdProc.command = [root.bunPath, "run", root.daemonPath, "--set-dpi", String(dpi)];
-        cmdProc.running = true;
+        dpiX = dpi
+        dpiY = dpi
+        cmdProc.command = [root.bunPath, "run", root.daemonPath, "--set-dpi", String(dpi)]
+        cmdProc.running = true
     }
 
     function setReportRate(rate) {
-        reportRate = rate;
-        cmdProc.command = [root.bunPath, "run", root.daemonPath, "--set-rate", String(rate)];
-        cmdProc.running = true;
+        reportRate = rate
+        cmdProc.command = [root.bunPath, "run", root.daemonPath, "--set-rate", String(rate)]
+        cmdProc.running = true
     }
 
     Process {
@@ -166,9 +159,9 @@ Item {
             id: cmdOut
             waitForEnd: true
             onStreamFinished: {
-                var lines = (cmdOut.text || "").trim();
+                var lines = (cmdOut.text || "").trim()
                 if (lines !== "") {
-                    root.applyLine(lines);
+                    root.applyLine(lines)
                 }
             }
         }
@@ -194,20 +187,24 @@ Item {
 
     Process {
         id: pollProc
-        command: [root.bunPath, "run", root.daemonPath, "--once"]
+        command: [
+            root.bunPath, "run",
+            root.daemonPath,
+            "--once"
+        ]
         stdout: StdioCollector {
             id: pollOutput
             waitForEnd: true
             onStreamFinished: {
-                var text = (pollOutput.text || "").trim();
+                var text = (pollOutput.text || "").trim()
                 if (text !== "") {
-                    root.applyLine(text);
+                    root.applyLine(text)
                 }
             }
         }
     }
 
     Component.onCompleted: {
-        root.refresh();
+        root.refresh()
     }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// superstrike-daemon.ts — HID++ 2.0 poller & controller for Logitech G PRO X2 SUPERSTRIKE.
+// logitech-g-daemon.ts — HID++ 2.0 poller & controller for Logitech G gaming mice.
 
 import { readFileSync, readdirSync, openSync, readSync, writeSync, closeSync, constants, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -32,7 +32,7 @@ const DEFAULT_INDICES = {
 };
 
 // Status file path
-const STATUS_PATH = "/tmp/omarchy-superstrike-status.json";
+const STATUS_PATH = "/tmp/omarchy-logitech-g-mouse.json";
 
 // Enum lookups
 const BATTERY_LEVEL: Record<number, string> = {
@@ -279,7 +279,7 @@ function readDeviceName(dev: HidppDevice, featIdx: number): string {
     const str = nameBuf.toString("utf8").replace(/\0.*$/, "").trim();
     return str !== "" ? str : "Logitech G Mouse";
   } catch {
-    return "G PRO X2 SUPERSTRIKE";
+    return "Logitech G Mouse";
   }
 }
 

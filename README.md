@@ -1,8 +1,8 @@
-# Logitech G PRO X2 SUPERSTRIKE — Omarchy Shell Plugin
+# Logitech G Mouse — Omarchy Shell Plugin (oma-logitech-g-mouse)
 
 **English** | [繁體中文](README.zh-tw.md)
 
-An [Omarchy Quattro](https://omarchyplugins.com/develop.html) bar widget and control panel plugin for the **Logitech G PRO X2 SUPERSTRIKE** analog gaming mouse.
+An [Omarchy Quattro](https://omarchyplugins.com/develop.html) bar widget and control panel plugin for **Logitech G Gaming Mice** (including G PRO X2 SUPERSTRIKE, G PRO X SUPERLIGHT 1/2, G502 Series, etc.).
 
 Communicates directly with the Linux `/dev/hidraw` device interface via the Logitech **HID++ 2.0** protocol, providing complete telemetry and hardware customization without requiring Logitech G HUB.
 
@@ -19,10 +19,10 @@ Communicates directly with the Linux `/dev/hidraw` device interface via the Logi
 Left-click opens the floating card (`KeyboardPanel`), organized into two clean, self-contained tabs with zero vertical clipping:
 
 - 🏷️ **Tab 1: `Sensor (DPI / Polling)`**
-  - **Quick DPI Presets**: 5 buttons stretching across 100% of the width (`800` / `1200` / `1600` / `2400` / `3200`), click to apply.
-  - **Continuous DPI Slider**: Smooth, continuous slider adjusting from `100` up to `32,000 DPI` in 50 DPI steps, with reference notches at `100`, `16,000`, and `32,000`.
+  - **Quick DPI Presets**: Full-width buttons dynamically adapting to the mouse's onboard presets (e.g. `800` / `1200` / `1600` / `2400` / `3200`), click to apply.
+  - **Continuous DPI Slider**: Smooth, continuous slider adjusting dynamically from `100` up to your sensor's maximum (up to `32,000 DPI` on HERO 2) in 50 DPI steps.
   - **Report Rate (Polling Rate)**: 7 full-width buttons (`125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz`) backed by native HID++ feature `0x8061`.
-- 🏷️ **Tab 2: `Buttons (Analog HITS)`**
+- 🏷️ **Tab 2: `Buttons (Analog HITS)`** *(automatically shown if mouse has analog switches)*
   - **Independent Left and Right Button Tuning**, each equipped with 3 native monochrome sliders:
     1. **Actuation Point**: Levels `1`–`10` (downward trigger travel: 0.1 mm ~ 1.0 mm).
     2. **Rapid Trigger**: Levels `1`–`5` (upward reset travel: 0.1 mm ~ 0.5 mm).
@@ -37,27 +37,23 @@ Left-click opens the floating card (`KeyboardPanel`), organized into two clean, 
 ### Install
 
 #### Method A: Git Install (via Omarchy CLI)
-Once published to a git repository, install with one command:
-
 ```bash
-omarchy plugin add https://github.com/<username>/oma-g-pro-x2-superstrike.git --enable
+omarchy plugin add https://github.com/<username>/oma-logitech-g-mouse.git --enable
 omarchy restart shell
 ```
 
 #### Method B: Local Manual Install (from source checkout)
-If developing or installing from a local folder:
-
 ```bash
 # 1. Copy plugin files to the Omarchy user plugins directory
-mkdir -p ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
-cp -a * ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/
+mkdir -p ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
+cp -a * ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/
 
 # 2. Validate plugin structure
-omarchy plugin validate ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
+omarchy plugin validate ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
 
 # 3. Discover and enable the plugin on the right section of the bar
 omarchy-shell shell rescanPlugins
-omarchy plugin enable tantuyu.g-pro-x2-superstrike --section right
+omarchy plugin enable tantuyu.logitech-g-mouse --section right
 
 # 4. Restart Omarchy shell to compile and load QML components
 omarchy restart shell
@@ -70,21 +66,19 @@ omarchy restart shell
 #### Method A: Remove via Omarchy CLI
 ```bash
 # Disable the plugin from the bar and remove files
-omarchy plugin disable tantuyu.g-pro-x2-superstrike
-omarchy plugin remove tantuyu.g-pro-x2-superstrike --yes
+omarchy plugin disable tantuyu.logitech-g-mouse
+omarchy plugin remove tantuyu.logitech-g-mouse --yes
 omarchy restart shell
 ```
 
 #### Method B: Manual Complete Removal
-To completely clean up all plugin files, temporary cache, and settings:
-
 ```bash
 # 1. Disable the plugin
-omarchy plugin disable tantuyu.g-pro-x2-superstrike
+omarchy plugin disable tantuyu.logitech-g-mouse
 
 # 2. Remove the plugin folder and temporary telemetry cache
-rm -rf ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
-rm -f /tmp/omarchy-superstrike-status.json
+rm -rf ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
+rm -f /tmp/omarchy-logitech-g-mouse.json
 
 # 3. Notify the shell and restart
 omarchy-shell shell rescanPlugins
@@ -95,56 +89,52 @@ omarchy restart shell
 
 ## 🛠️ Modifying & Applying Changes
 
-When you modify plugin source files locally, apply them based on the file type:
-
 - **Modifying QML / UI (`Panel.qml`, `BarWidget.qml`, `Model.js`)**:  
   Omarchy disables QML automatic file watching for system stability, so changes **require a shell restart**:
   ```bash
-  cp -a . ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/ && omarchy restart shell
+  cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
   ```
-- **Modifying TypeScript Backend (`superstrike-daemon.ts`)**:  
+- **Modifying TypeScript Backend (`logitech-g-daemon.ts`)**:  
   **No shell restart required!** The script is invoked dynamically via Bun upon clicks or polling events; changes take effect immediately on the next action.
 - **One-Liner Sync & Reload Command**:
   ```bash
-  omarchy plugin validate . && cp -a . ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/ && omarchy restart shell
+  omarchy plugin validate . && cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
   ```
 
 ---
 
 ## 💻 Standalone CLI Usage
 
-The core driver `superstrike-daemon.ts` can also be run independently from the command line:
+The core driver `logitech-g-daemon.ts` can also be run independently from the command line:
 
 ```bash
 # Print live telemetry in JSON format
-bun run superstrike-daemon.ts --once
+bun run logitech-g-daemon.ts --once
 
 # Set DPI (supports 100 to 32,000 DPI)
-bun run superstrike-daemon.ts --set-dpi 1600
+bun run logitech-g-daemon.ts --set-dpi 1600
 
 # Set Report Rate (125 / 250 / 500 / 1000 / 2000 / 4000 / 8000 Hz)
-bun run superstrike-daemon.ts --set-rate 4000
+bun run logitech-g-daemon.ts --set-rate 4000
 
 # Set Actuation Point (Levels 1–10)
-bun run superstrike-daemon.ts --set-actuation 4 --left
-bun run superstrike-daemon.ts --set-actuation 6 --right
+bun run logitech-g-daemon.ts --set-actuation 4 --left
+bun run logitech-g-daemon.ts --set-actuation 6 --right
 
 # Set Rapid Trigger (Levels 1–5)
-bun run superstrike-daemon.ts --set-rt 2 --left
+bun run logitech-g-daemon.ts --set-rt 2 --left
 
 # Set Click Haptics (Levels 1–6)
-bun run superstrike-daemon.ts --set-haptics 5 --left
+bun run logitech-g-daemon.ts --set-haptics 5 --left
 ```
 
 ---
 
 ## 🔬 HID++ 2.0 Protocol Reference
 
-This plugin reverse-engineers and implements the following hardware features:
-
 | Capability | Feature ID | Index | Description |
 | :--- | :--- | :--- | :--- |
-| **Device Name** | `0x0005` | `0x03` | Dynamic marketing name query (e.g. `PRO X2 SUPERSTRIKE`) |
+| **Device Name** | `0x0005` | `0x03` | Dynamic marketing name query (e.g. `PRO X2 SUPERSTRIKE`, `PRO X SUPERLIGHT`) |
 | **Unified Battery** | `0x1004` | `0x06` | Charge percentage, battery level, charging/discharging state |
 | **Extended DPI** | `0x2202` | `0x09` | Sensor parameters (supports up to 32K DPI) and LOD status |
 | **Onboard Profiles** | `0x8100` | `0x0e` | Profile switching, Host Mode unlock for custom DPI |
@@ -154,8 +144,6 @@ This plugin reverse-engineers and implements the following hardware features:
 ---
 
 ## 🔒 Permissions & Udev Rules
-
-To access `/dev/hidraw*` without root privileges, install the following udev rule:
 
 ```bash
 sudo tee /etc/udev/rules.d/42-logitech-superstrike.rules << 'EOF'

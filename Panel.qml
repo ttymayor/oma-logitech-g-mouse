@@ -8,7 +8,7 @@ import "Model.js" as Model
 
 Panel {
     id: root
-    moduleName: "tantuyu.g-pro-x2-superstrike"
+    moduleName: "tantuyu.logitech-g-mouse"
     manageIpc: false
 
     property var anchorItem: null
