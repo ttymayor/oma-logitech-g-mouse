@@ -32,28 +32,62 @@ Left-click opens the floating card (`KeyboardPanel`), organized into two clean, 
 
 ---
 
-## 🚀 Installation & Setup
+## 📦 Install & Uninstall
 
-### 1. Deploy to the Omarchy Plugins Directory
-Copy or link the plugin files to `~/.config/omarchy/plugins/`:
+### Install
+
+#### Method A: Git Install (via Omarchy CLI)
+Once published to a git repository, install with one command:
 
 ```bash
-mkdir -p ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
-cp -a * ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/
+omarchy plugin add https://github.com/<username>/oma-g-pro-x2-superstrike.git --enable
+omarchy restart shell
 ```
 
-### 2. Validate, Enable, and Restart Shell
+#### Method B: Local Manual Install (from source checkout)
+If developing or installing from a local folder:
+
 ```bash
-# Validate plugin structure and manifest
+# 1. Copy plugin files to the Omarchy user plugins directory
+mkdir -p ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
+cp -a * ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/
+
+# 2. Validate plugin structure
 omarchy plugin validate ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
 
-# Rescan shell plugin discovery
+# 3. Discover and enable the plugin on the right section of the bar
 omarchy-shell shell rescanPlugins
-
-# Enable and position on the right section of the bar
 omarchy plugin enable tantuyu.g-pro-x2-superstrike --section right
 
-# Restart Omarchy shell to load QML components
+# 4. Restart Omarchy shell to compile and load QML components
+omarchy restart shell
+```
+
+---
+
+### Uninstall
+
+#### Method A: Remove via Omarchy CLI
+```bash
+# Disable the plugin from the bar and remove files
+omarchy plugin disable tantuyu.g-pro-x2-superstrike
+omarchy plugin remove tantuyu.g-pro-x2-superstrike --yes
+omarchy restart shell
+```
+
+#### Method B: Manual Complete Removal
+To completely clean up all plugin files, temporary cache, and settings:
+
+```bash
+# 1. Disable the plugin
+omarchy plugin disable tantuyu.g-pro-x2-superstrike
+
+# 2. Remove the plugin folder and temporary telemetry cache
+rm -rf ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
+rm -f /tmp/omarchy-superstrike-status.json
+
+# 3. Notify the shell and restart
+omarchy-shell shell rescanPlugins
 omarchy restart shell
 ```
 
@@ -61,14 +95,14 @@ omarchy restart shell
 
 ## 🛠️ Modifying & Applying Changes
 
-When you modify plugin source files, apply them based on the file type:
+When you modify plugin source files locally, apply them based on the file type:
 
-- **Modifying QML / UI (`Panel.qml`, `BarWidget.qml`, `Model.js`)**:
+- **Modifying QML / UI (`Panel.qml`, `BarWidget.qml`, `Model.js`)**:  
   Omarchy disables QML automatic file watching for system stability, so changes **require a shell restart**:
   ```bash
   cp -a . ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/ && omarchy restart shell
   ```
-- **Modifying TypeScript Backend (`superstrike-daemon.ts`)**:
+- **Modifying TypeScript Backend (`superstrike-daemon.ts`)**:  
   **No shell restart required!** The script is invoked dynamically via Bun upon clicks or polling events; changes take effect immediately on the next action.
 - **One-Liner Sync & Reload Command**:
   ```bash
@@ -110,6 +144,7 @@ This plugin reverse-engineers and implements the following hardware features:
 
 | Capability | Feature ID | Index | Description |
 | :--- | :--- | :--- | :--- |
+| **Device Name** | `0x0005` | `0x03` | Dynamic marketing name query (e.g. `PRO X2 SUPERSTRIKE`) |
 | **Unified Battery** | `0x1004` | `0x06` | Charge percentage, battery level, charging/discharging state |
 | **Extended DPI** | `0x2202` | `0x09` | Sensor parameters (supports up to 32K DPI) and LOD status |
 | **Onboard Profiles** | `0x8100` | `0x0e` | Profile switching, Host Mode unlock for custom DPI |

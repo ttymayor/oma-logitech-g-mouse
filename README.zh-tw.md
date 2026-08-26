@@ -32,28 +32,62 @@
 
 ---
 
-## 🚀 安裝與啟用
+## 📦 安裝與解除安裝（Install & Uninstall）
 
-### 1. 部署至 Omarchy 外掛目錄
-將本專案同步至 `~/.config/omarchy/plugins/`：
+### 安裝（Install）
+
+#### 方法 A：透過 Omarchy CLI 遠端安裝（Git 安裝）
+若本專案已推送至公開或私有 Git 倉庫，可直接一行指令安裝並啟用：
 
 ```bash
-mkdir -p ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
-cp -a * ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/
+omarchy plugin add https://github.com/<username>/oma-g-pro-x2-superstrike.git --enable
+omarchy restart shell
 ```
 
-### 2. 驗證與啟用
+#### 方法 B：本地手動安裝（從本專案原始碼部署）
+如果是本地端開發或從原始碼資料夾安裝：
+
 ```bash
-# 驗證外掛結構規範
+# 1. 複製外掛檔案至 Omarchy 使用者外掛目錄
+mkdir -p ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
+cp -a * ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike/
+
+# 2. 驗證外掛結構規範
 omarchy plugin validate ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
 
-# 重新掃描外掛清單
+# 3. 讓 Shell 重新掃描外掛清單並在狀態列右側啟用
 omarchy-shell shell rescanPlugins
-
-# 啟用並加入狀態列右側
 omarchy plugin enable tantuyu.g-pro-x2-superstrike --section right
 
-# 重啟 Shell 載入 QML 元件
+# 4. 重啟 Omarchy Shell 載入 QML 元件
+omarchy restart shell
+```
+
+---
+
+### 解除安裝（Uninstall）
+
+#### 方法 A：透過 Omarchy CLI 移除
+```bash
+# 停用外掛並從系統中完全移除
+omarchy plugin disable tantuyu.g-pro-x2-superstrike
+omarchy plugin remove tantuyu.g-pro-x2-superstrike --yes
+omarchy restart shell
+```
+
+#### 方法 B：手動完全清除
+若要手動完全清理所有檔案與暫存快取：
+
+```bash
+# 1. 停用外掛
+omarchy plugin disable tantuyu.g-pro-x2-superstrike
+
+# 2. 刪除外掛目錄與暫存狀態快取檔
+rm -rf ~/.config/omarchy/plugins/tantuyu.g-pro-x2-superstrike
+rm -f /tmp/omarchy-superstrike-status.json
+
+# 3. 通知 Shell 重新掃描並重啟
+omarchy-shell shell rescanPlugins
 omarchy restart shell
 ```
 
@@ -110,6 +144,7 @@ bun run superstrike-daemon.ts --set-haptics 5 --left
 
 | 功能 | Feature ID | Index | 備註 |
 | :--- | :--- | :--- | :--- |
+| **Device Name** | `0x0005` | `0x03` | 行銷型號名稱動態讀取（如 `PRO X2 SUPERSTRIKE`） |
 | **Unified Battery** | `0x1004` | `0x06` | 電量百分比、電量等級、即時充電狀態 |
 | **Extended DPI** | `0x2202` | `0x09` | 感應器參數讀寫（支援至 32K DPI）與 LOD 狀態 |
 | **Onboard Profiles** | `0x8100` | `0x0e` | 板載設定檔切換、Host Mode 模式解鎖 |
