@@ -23,34 +23,29 @@ BarWidget {
     }
 
     function open() {
-        if (panelLoader.item)
-            panelLoader.item.open();
-        mouse.refresh();
+        if (panelLoader.item) panelLoader.item.open()
+        mouse.refresh()
     }
 
     function close() {
-        if (panelLoader.item)
-            panelLoader.item.close();
+        if (panelLoader.item) panelLoader.item.close()
     }
 
     function toggle() {
-        if (panelLoader.item)
-            panelLoader.item.toggle();
-        mouse.refresh();
+        if (panelLoader.item) panelLoader.item.toggle()
+        mouse.refresh()
     }
 
     function closeForPopoutSwitch() {
-        if (panelLoader.item)
-            panelLoader.item.closeForPopoutSwitch();
+        if (panelLoader.item) panelLoader.item.closeForPopoutSwitch()
     }
 
     function injectPanel() {
-        if (!panelLoader.item)
-            return;
-        panelLoader.item.bar = root.bar;
-        panelLoader.item.anchorItem = button;
-        panelLoader.item.hostWidget = root;
-        panelLoader.item.mouse = mouse;
+        if (!panelLoader.item) return
+        panelLoader.item.bar = root.bar
+        panelLoader.item.anchorItem = button
+        panelLoader.item.hostWidget = root
+        panelLoader.item.mouse = mouse
     }
 
     implicitWidth: button.implicitWidth
@@ -101,3 +96,4 @@ BarWidget {
         }
     }
 }
+
