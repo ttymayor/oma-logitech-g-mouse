@@ -11,6 +11,18 @@
 - Omarchy Quattro。
 - 已安裝 Bun，且 Omarchy Shell 的 `PATH` 可找到 `bun`。
 
+### 安裝 Bun
+
+請選擇一種安裝方式：
+
+```bash
+# mise：安裝 Bun 並設為全域版本
+mise use -g bun@latest
+
+# Omarchy 套件選擇器：搜尋並選擇 Bun
+omarchy pkg install
+```
+
 若 Bun 不在 Shell 的 `PATH` 中，請在外掛設定的 **Path to Bun** 填入 Bun 執行檔的絕對路徑。
 
 ---

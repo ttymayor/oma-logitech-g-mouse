@@ -2,14 +2,26 @@
 
 **English** | [繁體中文](README.zh-tw.md)
 
-An [Omarchy Quattro](https://omarchyplugins.com/develop.html) bar widget and control panel plugin for **Logitech G Gaming Mice** (including G PRO X2 SUPERSTRIKE, G PRO X SUPERLIGHT 1/2, G502 Series, etc.).
+An [Omarchy Quattro](https://omarchy.org/) bar widget and control panel plugin for **Logitech G Gaming Mice** (including G PRO X2 SUPERSTRIKE, G PRO X SUPERLIGHT 1/2, G502 Series, etc.).
 
 Communicates directly with the Linux `/dev/hidraw` device interface via the Logitech **HID++ 2.0** protocol, providing complete telemetry and hardware customization without requiring Logitech G HUB.
 
 ## Requirements
 
-- Omarchy Quattro.
+- [Omarchy Quattro](https://omarchy.org/).
 - Bun installed and available as `bun` on the Omarchy shell `PATH`.
+
+### Install Bun
+
+Choose one installation method:
+
+```bash
+# mise: install Bun and make it globally available
+mise use -g bun@latest
+
+# Omarchy package picker: search for and select Bun
+omarchy pkg install
+```
 
 If Bun is installed outside the shell `PATH`, set **Path to Bun** in the plugin settings to its absolute executable path.
 
