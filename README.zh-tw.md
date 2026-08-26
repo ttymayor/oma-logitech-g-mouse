@@ -8,31 +8,28 @@
 
 ---
 
-## ✨ 主要功能特點
+## 功能
 
-### 1. 狀態列小工具（Status Bar Widget）
-- **即時電量與狀態**：顯示如 `99% 󰁹`，支援充電中動態圖示（`󰂅`）及離線提示（`Off 󰍽`）。
-- **右鍵切換百分比**：在狀態列圖示上**點擊右鍵**即可一鍵切換「精簡圖示模式（`󰁹`）」或「圖示+百分比模式（`99% 󰁹`）」，設定自動持久化儲存於 `~/.config/omarchy/shell.json`。
-- **純粹單色系設計**：恆常鎖定系統 `foreground` 色彩，點開面板時狀態列按鈕不會閃爍變色。
+### 狀態列小工具
+- **電量與狀態**：顯示 `99% 󰁹`、充電圖示（`󰂅`）或離線狀態（`Off 󰍽`）。
+- **右鍵切換百分比**：切換圖示模式（`󰁹`）與百分比模式（`99% 󰁹`）；設定儲存在 `~/.config/omarchy/shell.json`。
+- **主題整合**：使用系統 `foreground` 色彩；面板開啟時不改變狀態列顏色。
 
-### 2. 雙分頁控制面板（2-Tab Control Panel）
-點擊狀態列按鈕即以懸浮視窗（KeyboardPanel）展開，分為兩大清楚主題，無垂直高度遮蔽問題：
+### 控制面板
+左鍵開啟含兩個分頁的 `KeyboardPanel`：
 
-- 🏷️ **Tab 1: `Sensor (DPI / Polling)`（感應器與回報率）**
-  - **DPI 常用預設**：5 顆 100% 滿版等寬按鈕（`800` / `1200` / `1600` / `2400` / `3200`），點擊即設。
-  - **DPI 連續微調滑桿**：支援從 `100` 至最高 `32,000 DPI` 連續無級微調（步進 50 DPI），附 `100` / `16,000` / `32,000` 刻度錨點。
-  - **回報率設定（Polling Rate）**：7 顆 100% 滿版等寬按鈕（`125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz`），官方原生協議即時切換。
-- 🏷️ **Tab 2: `Buttons (Analog HITS)`** *(若滑鼠具備類比開關則自動顯示)*
-  - **左鍵與右鍵獨立雙區**，各具備 3 組原生單色滑桿：
-    1. **Actuation Point（下壓觸發深度）**：`1` ~ `10` 級（0.1mm ~ 1.0mm 觸發行程）
-    2. **Rapid Trigger（快速復位重置行程）**：`1` ~ `5` 級（0.1mm ~ 0.5mm 抬起即重置）
-    3. **Click Haptics（震動點擊回饋力度）**：`1` ~ `6` 級觸覺反饋
-  - **刻度數字標尺**：滑桿正下方對齊呈現具體數字（`1..10`、`1..5`、`1..6`），並隨目前選中檔位加粗高亮。
-  - **零回彈防延遲技術**：採用樂觀狀態更新（Optimistic Updates），滑動與放開時指針平滑停駐，絕無跳動或彈回原位的延遲感。
+- **`Sensor (DPI / Polling)`**
+  - **DPI 預設**：依滑鼠板載預設清單產生滿寬按鈕。
+  - **DPI 滑桿**：從 `100` 到偵測到的感應器最大值，每次調整 50 DPI。
+  - **回報率**：若 HID++ Feature `0x8061` 支援，可選擇 `125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz`。
+- **`Buttons (Analog HITS)`** *(僅在具備類比開關的滑鼠顯示)*
+  - 左右鍵分別設定 **Actuation Point**（`1`–`10`）、**Rapid Trigger**（`1`–`5`）與 **Click Haptics**（`1`–`6`）。
+  - 每個滑桿下方有數字刻度。
+  - 樂觀狀態更新可避免硬體寫入期間滑桿回彈。
 
 ---
 
-## 📦 安裝與解除安裝（Install & Uninstall）
+## 安裝與解除安裝（Install & Uninstall）
 
 ### 安裝（Install）
 
@@ -91,7 +88,7 @@ omarchy restart shell
 
 ---
 
-## 🛠️ 開發與修改套用
+## 開發與修改套用
 
 - **修改了 QML / 介面（`Panel.qml`、`BarWidget.qml`、`Model.js`）**：
   因為 Omarchy 關閉了 QML 自動檔案監聽以維持系統穩定，修改後**必須重啟 Shell**：
@@ -107,7 +104,7 @@ omarchy restart shell
 
 ---
 
-## 💻 獨立 CLI 命令列控制
+## 獨立 CLI 命令列控制
 
 核心驅動腳本 `logitech-g-daemon.ts` 亦支援作為獨立命令列工具使用：
 
@@ -134,7 +131,7 @@ bun run logitech-g-daemon.ts --set-haptics 5 --left
 
 ---
 
-## 🔬 底層 HID++ 2.0 協議對照
+## HID++ 2.0 協議對照
 
 | 功能 | Feature ID | Index | 備註 |
 | :--- | :--- | :--- | :--- |
@@ -147,7 +144,7 @@ bun run logitech-g-daemon.ts --set-haptics 5 --left
 
 ---
 
-## 🔒 權限與 Udev 規則
+## 權限與 Udev 規則
 
 > **提示：** 在 Arch Linux、Omarchy 以及絕大多數現代基於 systemd 的桌面環境中，**你通常「不需要」執行這個步驟！**  
 > 系統內建的 `systemd-logind` 會自動透過 `uaccess` 動態存取控制清單（ACL），直接將 `/dev/hidraw*` 的讀寫權限（`user:username:rw-`）授予當前登入桌面的使用者帳號。
@@ -169,7 +166,7 @@ sudo udevadm control --reload && sudo udevadm trigger
 
 ---
 
-## 📄 授權條款
+## 授權條款
 
 MIT License.  
 Logitech、G PRO、SUPERSTRIKE 為羅技公司之註冊商標，本專案為第三方獨立開源外掛，與羅技官方無隸屬關係。

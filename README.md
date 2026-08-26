@@ -8,31 +8,28 @@ Communicates directly with the Linux `/dev/hidraw` device interface via the Logi
 
 ---
 
-## ✨ Features
+## Features
 
-### 1. Status Bar Widget
-- **Live Battery & Status**: Shows status like `99% 󰁹`, dynamic charging indicator (`󰂅`), and disconnected status (`Off 󰍽`).
-- **Right-Click Percentage Toggle**: Right-click the widget icon directly on the status bar to switch between compact icon mode (`󰁹`) and percentage mode (`99% 󰁹`). The preference is automatically persisted to `~/.config/omarchy/shell.json`.
-- **Pure Monochromatic Theme**: Adheres strictly to the system `foreground` palette. The widget does not flicker or shift to accent colors when the panel is opened.
+### Status Bar Widget
+- **Battery and status**: Shows `99% 󰁹`, a charging icon (`󰂅`), or a disconnected state (`Off 󰍽`).
+- **Right-click percentage toggle**: Switches between icon-only (`󰁹`) and percentage (`99% 󰁹`) modes. The setting is persisted in `~/.config/omarchy/shell.json`.
+- **Theme integration**: Uses the system `foreground` palette and does not change color while its panel is open.
 
-### 2. 2-Tab Control Panel
-Left-click opens the floating card (`KeyboardPanel`), organized into two clean, self-contained tabs with zero vertical clipping:
+### Control Panel
+Left-click opens a `KeyboardPanel` with two tabs:
 
-- 🏷️ **Tab 1: `Sensor (DPI / Polling)`**
-  - **Quick DPI Presets**: Full-width buttons dynamically adapting to the mouse's onboard presets (e.g. `800` / `1200` / `1600` / `2400` / `3200`), click to apply.
-  - **Continuous DPI Slider**: Smooth, continuous slider adjusting dynamically from `100` up to your sensor's maximum (up to `32,000 DPI` on HERO 2) in 50 DPI steps.
-  - **Report Rate (Polling Rate)**: 7 full-width buttons (`125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz`) backed by native HID++ feature `0x8061`.
-- 🏷️ **Tab 2: `Buttons (Analog HITS)`** *(automatically shown if mouse has analog switches)*
-  - **Independent Left and Right Button Tuning**, each equipped with 3 native monochrome sliders:
-    1. **Actuation Point**: Levels `1`–`10` (downward trigger travel: 0.1 mm ~ 1.0 mm).
-    2. **Rapid Trigger**: Levels `1`–`5` (upward reset travel: 0.1 mm ~ 0.5 mm).
-    3. **Click Haptics**: Levels `1`–`6` (tactile feedback vibration strength).
-  - **Aligned Tick Numbers**: A numerical ruler directly under each slider tracks each notch (`1..10`, `1..5`, `1..6`), with the active value bolded and highlighted.
-  - **Zero-Rebound Technology**: Uses optimistic UI updates so the slider knob stays smoothly at the user's release point without snapping back or stuttering.
+- **`Sensor (DPI / Polling)`**
+  - **DPI presets**: Full-width buttons from the mouse's onboard preset list.
+  - **DPI slider**: Adjusts from `100` up to the detected sensor maximum in 50 DPI steps.
+  - **Report rate**: Selects from `125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz` when supported by HID++ feature `0x8061`.
+- **`Buttons (Analog HITS)`** *(shown only for analog-switch mice)*
+  - Per-button **Actuation Point** (`1`–`10`), **Rapid Trigger** (`1`–`5`), and **Click Haptics** (`1`–`6`) sliders.
+  - Numeric tick labels under each slider.
+  - Optimistic state updates prevent slider rebound while hardware writes complete.
 
 ---
 
-## 📦 Install & Uninstall
+## Install & Uninstall
 
 ### Install
 
@@ -87,7 +84,7 @@ omarchy restart shell
 
 ---
 
-## 🛠️ Modifying & Applying Changes
+## Modifying & Applying Changes
 
 - **Modifying QML / UI (`Panel.qml`, `BarWidget.qml`, `Model.js`)**:  
   Omarchy disables QML automatic file watching for system stability, so changes **require a shell restart**:
@@ -103,7 +100,7 @@ omarchy restart shell
 
 ---
 
-## 💻 Standalone CLI Usage
+## Standalone CLI Usage
 
 The core driver `logitech-g-daemon.ts` can also be run independently from the command line:
 
@@ -130,7 +127,7 @@ bun run logitech-g-daemon.ts --set-haptics 5 --left
 
 ---
 
-## 🔬 HID++ 2.0 Protocol Reference
+## HID++ 2.0 Protocol Reference
 
 | Capability | Feature ID | Index | Description |
 | :--- | :--- | :--- | :--- |
@@ -143,7 +140,7 @@ bun run logitech-g-daemon.ts --set-haptics 5 --left
 
 ---
 
-## 🔒 Permissions & Udev Rules
+## Permissions & Udev Rules
 
 > **Note:** On Arch Linux, Omarchy, and most modern systemd-based desktop distributions, **you do NOT need to perform this step!**  
 > `systemd-logind` automatically applies `uaccess` dynamic ACLs granting your logged-in desktop user direct read/write permissions (`user:username:rw-`) to `/dev/hidraw*` devices.
@@ -165,7 +162,7 @@ sudo udevadm control --reload && sudo udevadm trigger
 
 ---
 
-## 📄 License
+## License
 
 MIT License.  
 Logitech, G PRO, and SUPERSTRIKE are trademarks of Logitech. This project is an independent third-party open-source plugin and is not affiliated with Logitech.
