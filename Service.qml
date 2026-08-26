@@ -9,6 +9,7 @@ Item {
   property var settings: ({})
 
   property bool connected: false
+  property string deviceName: "Logitech G Mouse"
   property int batteryPercentage: Model.LEVEL_UNKNOWN
   property string batteryLevel: "unknown"
   property string batteryStatus: "unknown"
@@ -16,8 +17,12 @@ Item {
   property int defaultDpiX: 0
   property int dpiY: 0
   property int defaultDpiY: 0
+  property int dpiMin: 100
+  property int dpiMax: 32000
+  property var dpiPresets: [800, 1200, 1600, 2400, 3200]
   property int reportRate: 1000
   property string lod: "unknown"
+  property bool hasHits: false
   property var hitsLeft: Model.defaultButton()
   property var hitsRight: Model.defaultButton()
   property string lastError: ""
@@ -41,6 +46,7 @@ Item {
   function applyStatus(status) {
     if (!status) return
     connected = (status.connected === true)
+    deviceName = String(status.deviceName || "Logitech G Mouse")
     batteryPercentage = Number(status.batteryPercentage)
     batteryLevel = String(status.batteryLevel || "unknown")
     batteryStatus = String(status.batteryStatus || "unknown")
@@ -48,8 +54,12 @@ Item {
     defaultDpiX = Number(status.defaultDpiX || 0)
     dpiY = Number(status.dpiY || 0)
     defaultDpiY = Number(status.defaultDpiY || 0)
+    dpiMin = Number(status.dpiMin || 100)
+    dpiMax = Number(status.dpiMax || 32000)
+    dpiPresets = status.dpiPresets || [800, 1200, 1600, 2400, 3200]
     reportRate = Number(status.reportRate || 1000)
     lod = String(status.lod || "unknown")
+    hasHits = !!status.hasHits
     hitsLeft = status.hitsLeft || Model.defaultButton()
     hitsRight = status.hitsRight || Model.defaultButton()
     lastError = String(status.error || "")
