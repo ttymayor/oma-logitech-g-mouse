@@ -149,8 +149,18 @@ bun run logitech-g-daemon.ts --set-haptics 5 --left
 
 ## 🔒 權限與 Udev 規則
 
+> **提示：** 在 Arch Linux、Omarchy 以及絕大多數現代基於 systemd 的桌面環境中，**你通常「不需要」執行這個步驟！**  
+> 系統內建的 `systemd-logind` 會自動透過 `uaccess` 動態存取控制清單（ACL），直接將 `/dev/hidraw*` 的讀寫權限（`user:username:rw-`）授予當前登入桌面的使用者帳號。
+
+### 什麼情況下才需要執行此步驟？
+只有在遇到以下少數特殊情況時才需要設定：
+1. 執行 `bun run logitech-g-daemon.ts --once` 時噴出 **`EACCES: Permission denied`**（權限不足）錯誤。
+2. 使用沒有配置 `systemd-logind` 的極簡發行版、Docker 容器環境，或在沒有圖形登入會話（無 seat0）的純終端機/伺服器環境中執行。
+
+若遇到上述權限不足的情況，可建立以下 udev 規則賦予所有人讀寫權限：
+
 ```bash
-sudo tee /etc/udev/rules.d/42-logitech-superstrike.rules << 'EOF'
+sudo tee /etc/udev/rules.d/42-logitech-mouse.rules << 'EOF'
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0666"
 EOF
 

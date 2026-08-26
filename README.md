@@ -145,8 +145,18 @@ bun run logitech-g-daemon.ts --set-haptics 5 --left
 
 ## 🔒 Permissions & Udev Rules
 
+> **Note:** On Arch Linux, Omarchy, and most modern systemd-based desktop distributions, **you do NOT need to perform this step!**  
+> `systemd-logind` automatically applies `uaccess` dynamic ACLs granting your logged-in desktop user direct read/write permissions (`user:username:rw-`) to `/dev/hidraw*` devices.
+
+### When is this required?
+This step is only necessary if:
+1. Running `bun run logitech-g-daemon.ts --once` fails with an `EACCES: Permission denied` error.
+2. You are using a minimal distribution without `systemd-logind`, running in a container, or running over a headless session where `uaccess` seat management is not active.
+
+In those cases, create this udev rule to grant world read/write permissions to Logitech HID devices:
+
 ```bash
-sudo tee /etc/udev/rules.d/42-logitech-superstrike.rules << 'EOF'
+sudo tee /etc/udev/rules.d/42-logitech-mouse.rules << 'EOF'
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0666"
 EOF
 
