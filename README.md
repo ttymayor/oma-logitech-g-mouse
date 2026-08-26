@@ -48,14 +48,13 @@ Left-click opens a `KeyboardPanel` with two tabs:
   - Numeric tick labels under each slider.
   - Optimistic state updates prevent slider rebound while hardware writes complete.
 
-
 ## Screenshots
 
 ### Sensor tab
 
 ![Sensor tab showing battery, DPI, and polling-rate controls](screenshot-1.png)
+![Buttons tab showing analog-switch button controls](screenshot-2.png)
 
-The `Buttons (Analog HITS)` tab screenshot will be added as `screenshot-2.png`.
 ---
 
 ## Install & Uninstall
