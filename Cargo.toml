@@ -1,0 +1,17 @@
+[package]
+name = "logitech-g-daemon"
+version = "0.2.0"
+edition = "2024"
+description = "Native HID++ controller for the Omarchy Logitech G Mouse plugin"
+license = "MIT"
+publish = false
+
+[[bin]]
+name = "logitech-g-daemon"
+path = "src/main.rs"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"

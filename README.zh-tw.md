@@ -6,58 +6,6 @@
 
 透過 Linux 原生 `/dev/hidraw` 節點與 Logitech **HID++ 2.0** 協議直接通訊，無需官方 G HUB，即可在 Omarchy 桌面環境中享有完整的遙測讀取、靈敏度、回報率與類比開關調校功能。
 
-## 需求
-
-- Omarchy Quattro。
-- 已安裝 Bun，且 Omarchy Shell 的 `PATH` 可找到 `bun`。
-
-### 安裝 Bun
-
-請選擇一種安裝方式：
-
-```bash
-# mise：安裝 Bun 並設為全域版本
-mise use -g bun@latest
-
-# Omarchy 套件選擇器：搜尋並選擇 Bun
-omarchy pkg install
-```
-
-若 Bun 不在 Shell 的 `PATH` 中，請在外掛設定的 **Path to Bun** 填入 Bun 執行檔的絕對路徑。
-
----
-
-## 功能
-
-### 狀態列小工具
-
-- **電量與狀態**：顯示 `99% 󰁹`、充電圖示（`󰂅`）或離線狀態（`Off 󰍽`）。
-- **右鍵切換百分比**：切換圖示模式（`󰁹`）與百分比模式（`99% 󰁹`）；設定儲存在 `~/.config/omarchy/shell.json`。
-- **主題整合**：使用系統 `foreground` 色彩；面板開啟時不改變狀態列顏色。
-
-### 控制面板
-
-左鍵開啟含兩個分頁的 `KeyboardPanel`：
-
-- **`Sensor (DPI / Polling)`**
-  - **DPI 預設**：依滑鼠板載預設清單產生滿寬按鈕。
-  - **DPI 滑桿**：從 `100` 到偵測到的感應器最大值，每次調整 50 DPI。
-  - **回報率**：若 HID++ Feature `0x8061` 支援，可選擇 `125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz`。
-- **`Buttons (Analog HITS)`** _(僅在具備類比開關的滑鼠顯示)_
-  - 左右鍵分別設定 **Actuation Point**（`1`–`10`）、**Rapid Trigger**（`1`–`5`）與 **Click Haptics**（`1`–`6`）。
-  - 每個滑桿下方有數字刻度。
-  - 樂觀狀態更新可避免硬體寫入期間滑桿回彈。
-
-## 截圖
-
-### Sensor 分頁
-
-![Sensor 分頁：電量、DPI 與回報率設定](screenshot-1.png)
-![Buttons 分頁：類比開關按鈕調校](screenshot-2.png)
-
-`Buttons (Analog HITS)` 分頁的截圖預計將新增為 `screenshot-2.png`。
----
-
 ## 安裝與解除安裝（Install & Uninstall）
 
 ### 安裝（Install）
@@ -121,6 +69,37 @@ omarchy restart shell
 
 ---
 
+## 功能
+
+### 狀態列小工具
+
+- **電量與狀態**：顯示 `99% 󰁹`、充電圖示（`󰂅`）或離線狀態（`Off 󰍽`）。
+- **右鍵切換百分比**：切換圖示模式（`󰁹`）與百分比模式（`99% 󰁹`）；設定儲存在 `~/.config/omarchy/shell.json`。
+- **主題整合**：使用系統 `foreground` 色彩；面板開啟時不改變狀態列顏色。
+
+### 控制面板
+
+左鍵開啟含兩個分頁的 `KeyboardPanel`：
+
+- **`Sensor (DPI / Polling)`**
+  - **DPI 預設**：依滑鼠板載預設清單產生滿寬按鈕。
+  - **DPI 滑桿**：從 `100` 到偵測到的感應器最大值，每次調整 50 DPI。
+  - **回報率**：若 HID++ Feature `0x8061` 支援，可選擇 `125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz`。
+- **`Buttons (Analog HITS)`** _(僅在具備類比開關的滑鼠顯示)_
+  - 左右鍵分別設定 **Actuation Point**（`1`–`10`）、**Rapid Trigger**（`1`–`5`）與 **Click Haptics**（`1`–`6`）。
+  - 每個滑桿下方有數字刻度。
+  - 樂觀狀態更新可避免硬體寫入期間滑桿回彈。
+
+## 截圖
+
+### Sensor 分頁
+
+![Sensor 分頁：電量、DPI 與回報率設定](screenshot-1.png)
+![Buttons 分頁：類比開關按鈕調校](screenshot-2.png)
+
+`Buttons (Analog HITS)` 分頁的截圖預計將新增為 `screenshot-2.png`。
+---
+
 ## 開發與修改套用
 
 - **修改了 QML / 介面（`Panel.qml`、`BarWidget.qml`、`Model.js`）**：
@@ -128,8 +107,8 @@ omarchy restart shell
   ```bash
   cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
   ```
-- **只修改了 TypeScript 驅動（`logitech-g-daemon.ts`）**：
-  **不需要重啟 Shell**！下一次點擊按鈕或定時輪詢時會由 Bun 自動即時載入執行。
+- **修改原生驅動（`src/main.rs`）**：
+  同步前必須先建立並封裝執行檔：`cargo build --release && install -Dm755 target/release/logitech-g-daemon bin/logitech-g-daemon`。接著執行上方 QML／介面同步指令，並重啟 Shell。
 - **一鍵驗證、同步與重啟指令**：
   ```bash
   omarchy plugin validate . && cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
@@ -139,27 +118,27 @@ omarchy restart shell
 
 ## 獨立 CLI 命令列控制
 
-核心驅動腳本 `logitech-g-daemon.ts` 亦支援作為獨立命令列工具使用：
+隨附的原生驅動亦可作為獨立命令列工具使用：
 
 ```bash
 # 讀取完整狀態（JSON 輸出）
-bun run logitech-g-daemon.ts --once
+./bin/logitech-g-daemon --once
 
 # 設定 DPI（支援 100 ~ 32,000）
-bun run logitech-g-daemon.ts --set-dpi 1600
+./bin/logitech-g-daemon --set-dpi 1600
 
 # 設定回報率（125 / 250 / 500 / 1000 / 2000 / 4000 / 8000 Hz）
-bun run logitech-g-daemon.ts --set-rate 4000
+./bin/logitech-g-daemon --set-rate 4000
 
 # 設定下壓觸發點 Actuation Point（1~10 級）
-bun run logitech-g-daemon.ts --set-actuation 4 --left
-bun run logitech-g-daemon.ts --set-actuation 6 --right
+./bin/logitech-g-daemon --set-actuation 4 --left
+./bin/logitech-g-daemon --set-actuation 6 --right
 
 # 設定快速復位行程 Rapid Trigger（1~5 級）
-bun run logitech-g-daemon.ts --set-rt 2 --left
+./bin/logitech-g-daemon --set-rt 2 --left
 
-# 設定震動點擊回饋 Click Haptics（1~6 級）
-bun run logitech-g-daemon.ts --set-haptics 5 --left
+# 設定震動點擊回饋 Click Haptics（1~6）
+./bin/logitech-g-daemon --set-haptics 5
 ```
 
 ---
@@ -186,7 +165,7 @@ bun run logitech-g-daemon.ts --set-haptics 5 --left
 
 只有在遇到以下少數特殊情況時才需要設定：
 
-1. 執行 `bun run logitech-g-daemon.ts --once` 時噴出 **`EACCES: Permission denied`**（權限不足）錯誤。
+1. 執行 `./bin/logitech-g-daemon --once` 時噴出 **`EACCES: Permission denied`**（權限不足）錯誤。
 2. 使用沒有配置 `systemd-logind` 的極簡發行版、Docker 容器環境，或在沒有圖形登入會話（無 seat0）的純終端機/伺服器環境中執行。
 
 若遇到上述權限不足的情況，可建立以下 udev 規則賦予所有人讀寫權限：

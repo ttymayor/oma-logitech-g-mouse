@@ -6,57 +6,6 @@ An [Omarchy Quattro](https://omarchy.org/) bar widget and control panel plugin f
 
 Communicates directly with the Linux `/dev/hidraw` device interface via the Logitech **HID++ 2.0** protocol, providing complete telemetry and hardware customization without requiring Logitech G HUB.
 
-## Requirements
-
-- [Omarchy Quattro](https://omarchy.org/).
-- Bun installed and available as `bun` on the Omarchy shell `PATH`.
-
-### Install Bun
-
-Choose one installation method:
-
-```bash
-# mise: install Bun and make it globally available
-mise use -g bun@latest
-
-# Omarchy package picker: search for and select Bun
-omarchy pkg install
-```
-
-If Bun is installed outside the shell `PATH`, set **Path to Bun** in the plugin settings to its absolute executable path.
-
----
-
-## Features
-
-### Status Bar Widget
-
-- **Battery and status**: Shows `99% 󰁹`, a charging icon (`󰂅`), or a disconnected state (`Off 󰍽`).
-- **Right-click percentage toggle**: Switches between icon-only (`󰁹`) and percentage (`99% 󰁹`) modes. The setting is persisted in `~/.config/omarchy/shell.json`.
-- **Theme integration**: Uses the system `foreground` palette and does not change color while its panel is open.
-
-### Control Panel
-
-Left-click opens a `KeyboardPanel` with two tabs:
-
-- **`Sensor (DPI / Polling)`**
-  - **DPI presets**: Full-width buttons from the mouse's onboard preset list.
-  - **DPI slider**: Adjusts from `100` up to the detected sensor maximum in 50 DPI steps.
-  - **Report rate**: Selects from `125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz` when supported by HID++ feature `0x8061`.
-- **`Buttons (Analog HITS)`** _(shown only for analog-switch mice)_
-  - Per-button **Actuation Point** (`1`–`10`), **Rapid Trigger** (`1`–`5`), and **Click Haptics** (`1`–`6`) sliders.
-  - Numeric tick labels under each slider.
-  - Optimistic state updates prevent slider rebound while hardware writes complete.
-
-## Screenshots
-
-### Sensor tab
-
-![Sensor tab showing battery, DPI, and polling-rate controls](screenshot-1.png)
-![Buttons tab showing analog-switch button controls](screenshot-2.png)
-
----
-
 ## Install & Uninstall
 
 ### Install
@@ -116,6 +65,36 @@ omarchy restart shell
 
 ---
 
+## Features
+
+### Status Bar Widget
+
+- **Battery and status**: Shows `99% 󰁹`, a charging icon (`󰂅`), or a disconnected state (`Off 󰍽`).
+- **Right-click percentage toggle**: Switches between icon-only (`󰁹`) and percentage (`99% 󰁹`) modes. The setting is persisted in `~/.config/omarchy/shell.json`.
+- **Theme integration**: Uses the system `foreground` palette and does not change color while its panel is open.
+
+### Control Panel
+
+Left-click opens a `KeyboardPanel` with two tabs:
+
+- **`Sensor (DPI / Polling)`**
+  - **DPI presets**: Full-width buttons from the mouse's onboard preset list.
+  - **DPI slider**: Adjusts from `100` up to the detected sensor maximum in 50 DPI steps.
+  - **Report rate**: Selects from `125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz` when supported by HID++ feature `0x8061`.
+- **`Buttons (Analog HITS)`** _(shown only for analog-switch mice)_
+  - Per-button **Actuation Point** (`1`–`10`), **Rapid Trigger** (`1`–`5`), and **Click Haptics** (`1`–`6`) sliders.
+  - Numeric tick labels under each slider.
+  - Optimistic state updates prevent slider rebound while hardware writes complete.
+
+## Screenshots
+
+### Sensor tab
+
+![Sensor tab showing battery, DPI, and polling-rate controls](screenshot-1.png)
+![Buttons tab showing analog-switch button controls](screenshot-2.png)
+
+---
+
 ## Modifying & Applying Changes
 
 - **Modifying QML / UI (`Panel.qml`, `BarWidget.qml`, `Model.js`)**:  
@@ -123,8 +102,8 @@ omarchy restart shell
   ```bash
   cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
   ```
-- **Modifying TypeScript Backend (`logitech-g-daemon.ts`)**:  
-  **No shell restart required!** The script is invoked dynamically via Bun upon clicks or polling events; changes take effect immediately on the next action.
+- **Modifying the native driver (`src/main.rs`)**:  
+  Build and package the executable before syncing: `cargo build --release && install -Dm755 target/release/logitech-g-daemon bin/logitech-g-daemon`. Then use the QML/UI sync command above and restart the shell.
 - **One-Liner Sync & Reload Command**:
   ```bash
   omarchy plugin validate . && cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
@@ -134,27 +113,27 @@ omarchy restart shell
 
 ## Standalone CLI Usage
 
-The core driver `logitech-g-daemon.ts` can also be run independently from the command line:
+The bundled native driver can also be run independently from the command line:
 
 ```bash
 # Print live telemetry in JSON format
-bun run logitech-g-daemon.ts --once
+./bin/logitech-g-daemon --once
 
 # Set DPI (supports 100 to 32,000 DPI)
-bun run logitech-g-daemon.ts --set-dpi 1600
+./bin/logitech-g-daemon --set-dpi 1600
 
 # Set Report Rate (125 / 250 / 500 / 1000 / 2000 / 4000 / 8000 Hz)
-bun run logitech-g-daemon.ts --set-rate 4000
+./bin/logitech-g-daemon --set-rate 4000
 
 # Set Actuation Point (Levels 1–10)
-bun run logitech-g-daemon.ts --set-actuation 4 --left
-bun run logitech-g-daemon.ts --set-actuation 6 --right
+./bin/logitech-g-daemon --set-actuation 4 --left
+./bin/logitech-g-daemon --set-actuation 6 --right
 
 # Set Rapid Trigger (Levels 1–5)
-bun run logitech-g-daemon.ts --set-rt 2 --left
+./bin/logitech-g-daemon --set-rt 2 --left
 
 # Set Click Haptics (Levels 1–6)
-bun run logitech-g-daemon.ts --set-haptics 5 --left
+./bin/logitech-g-daemon --set-haptics 5 --left
 ```
 
 ---
@@ -181,7 +160,7 @@ bun run logitech-g-daemon.ts --set-haptics 5 --left
 
 This step is only necessary if:
 
-1. Running `bun run logitech-g-daemon.ts --once` fails with an `EACCES: Permission denied` error.
+1. Running `./bin/logitech-g-daemon --once` fails with an `EACCES: Permission denied` error.
 2. You are using a minimal distribution without `systemd-logind`, running in a container, or running over a headless session where `uaccess` seat management is not active.
 
 In those cases, create this udev rule to grant world read/write permissions to Logitech HID devices:

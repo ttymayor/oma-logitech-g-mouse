@@ -33,8 +33,7 @@ Item {
     }
 
     readonly property string statePath: "/tmp/omarchy-logitech-g-mouse.json"
-    readonly property string bunPath: String(settings && settings.bunPath ? settings.bunPath : "bun")
-    readonly property string daemonPath: Quickshell.env("HOME") + "/.config/omarchy/plugins/tantuyu.logitech-g-mouse/logitech-g-daemon.ts"
+    readonly property string daemonPath: Quickshell.env("HOME") + "/.config/omarchy/plugins/tantuyu.logitech-g-mouse/bin/logitech-g-daemon"
 
     function refresh() {
         stateFile.reload()
@@ -87,7 +86,7 @@ Item {
             }
         }
 
-        var args = [root.bunPath, "run", root.daemonPath, "--set-actuation", String(act)]
+        var args = [root.daemonPath, "--set-actuation", String(act)]
         if (btn === 0) args.push("--left")
         else if (btn === 1) args.push("--right")
         cmdProc.command = args
@@ -110,7 +109,7 @@ Item {
             }
         }
 
-        var args = [root.bunPath, "run", root.daemonPath, "--set-rt", String(rt)]
+        var args = [root.daemonPath, "--set-rt", String(rt)]
         if (btn === 0) args.push("--left")
         else if (btn === 1) args.push("--right")
         cmdProc.command = args
@@ -133,7 +132,7 @@ Item {
             }
         }
 
-        var args = [root.bunPath, "run", root.daemonPath, "--set-haptics", String(hap)]
+        var args = [root.daemonPath, "--set-haptics", String(hap)]
         if (btn === 0) args.push("--left")
         else if (btn === 1) args.push("--right")
         cmdProc.command = args
@@ -143,13 +142,13 @@ Item {
     function setDpi(dpi) {
         dpiX = dpi
         dpiY = dpi
-        cmdProc.command = [root.bunPath, "run", root.daemonPath, "--set-dpi", String(dpi)]
+        cmdProc.command = [root.daemonPath, "--set-dpi", String(dpi)]
         cmdProc.running = true
     }
 
     function setReportRate(rate) {
         reportRate = rate
-        cmdProc.command = [root.bunPath, "run", root.daemonPath, "--set-rate", String(rate)]
+        cmdProc.command = [root.daemonPath, "--set-rate", String(rate)]
         cmdProc.running = true
     }
 
@@ -188,7 +187,6 @@ Item {
     Process {
         id: pollProc
         command: [
-            root.bunPath, "run",
             root.daemonPath,
             "--once"
         ]
