@@ -1,4 +1,4 @@
-# Logitech G Mouse — Omarchy Shell Plugin (oma-logitech-g-mouse)
+# Logitech G Mouse — Omarchy Plugin (oma-logitech-g-mouse)
 
 **English** | [繁體中文](README.zh-tw.md)
 

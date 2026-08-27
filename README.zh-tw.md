@@ -1,4 +1,4 @@
-# 羅技 G 系列滑鼠 — Omarchy 外掛 (oma-logitech-g-mouse)
+# 羅技 G 系列滑鼠 — Omarchy Plugin (oma-logitech-g-mouse)
 
 [English](README.md) | **繁體中文**
 
