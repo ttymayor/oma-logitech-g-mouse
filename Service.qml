@@ -21,6 +21,7 @@ Item {
     property int dpiMax: 32000
     property var dpiPresets: [800, 1200, 1600, 2400, 3200]
     property int reportRate: 1000
+    property string onboardProfileMode: "unknown"
     property string lod: "unknown"
     property bool hasHits: false
     property var hitsLeft: Model.defaultButton()
@@ -32,11 +33,9 @@ Item {
         return Math.max(5, Number(v) || 15)
     }
 
-    readonly property string statePath: "/tmp/omarchy-logitech-g-mouse.json"
     readonly property string daemonPath: Quickshell.env("HOME") + "/.config/omarchy/plugins/tantuyu.logitech-g-mouse/bin/logitech-g-daemon"
 
     function refresh() {
-        stateFile.reload()
         if (!pollProc.running) {
             pollProc.running = true
         }
@@ -57,6 +56,7 @@ Item {
         dpiMax = Number(status.dpiMax || 32000)
         dpiPresets = status.dpiPresets || [800, 1200, 1600, 2400, 3200]
         reportRate = Number(status.reportRate || 1000)
+        onboardProfileMode = String(status.onboardProfileMode || "unknown")
         lod = String(status.lod || "unknown")
         hasHits = !!status.hasHits
         hitsLeft = status.hitsLeft || Model.defaultButton()
@@ -65,8 +65,11 @@ Item {
     }
 
     function applyLine(raw) {
-        var parsed = Model.parseStatus(raw)
-        applyStatus(parsed)
+        if (typeof raw !== "string" || raw.length > 16384) {
+            applyStatus(Model.defaultStatus())
+            return
+        }
+        applyStatus(Model.parseStatus(raw))
     }
 
     // Optimistic UI updates
@@ -152,6 +155,13 @@ Item {
         cmdProc.running = true
     }
 
+    function setOnboardProfileMode(mode) {
+        if (mode !== "host" && mode !== "onboard") return
+        onboardProfileMode = mode
+        cmdProc.command = [root.daemonPath, "--set-profile-mode", mode]
+        cmdProc.running = true
+    }
+
     Process {
         id: cmdProc
         stdout: StdioCollector {
@@ -166,14 +176,6 @@ Item {
         }
     }
 
-    FileView {
-        id: stateFile
-        path: root.statePath
-        watchChanges: true
-        printErrors: false
-        onFileChanged: reload()
-        onLoaded: root.applyLine(text())
-    }
 
     Timer {
         id: pollTimer

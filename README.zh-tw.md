@@ -56,15 +56,19 @@ Omarchy 與其他使用 systemd 的桌面會話通常會由 `systemd-logind` 透
 ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/bin/logitech-g-daemon --once
 ```
 
-如果回傳 `EACCES: Permission denied`，表示目前會話沒有 HID 裝置權限。容器、無桌面會話環境，或沒有 `systemd-logind` 的系統可能發生此情況；僅在此時建立 udev 規則：
+如果回傳 `EACCES: Permission denied`，表示目前會話沒有 HID 裝置權限。容器、無桌面會話環境，或沒有 `systemd-logind` 的系統可能發生此情況。可用時請維持原本的 `uaccess` 作法；無桌面會話系統則只授予專用本機群組存取權：
 
 ```bash
+sudo groupadd --system logitech-hidraw
+sudo usermod -aG logitech-hidraw "$USER"
 sudo tee /etc/udev/rules.d/42-logitech-mouse.rules << 'EOF'
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0666"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", GROUP="logitech-hidraw", MODE="0660"
 EOF
 sudo udevadm control --reload
 sudo udevadm trigger
 ```
+
+新增群組成員資格後，請登出再登入。
 
 ## 解除安裝
 
@@ -78,9 +82,7 @@ omarchy restart shell
 
 ```bash
 omarchy plugin disable tantuyu.logitech-g-mouse
-rm -rf ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
-rm -f /tmp/omarchy-logitech-g-mouse.json
-omarchy-shell shell rescanPlugins
+rm -rf "${XDG_RUNTIME_DIR:-/run/user/$UID}/omarchy-logitech-g-mouse"
 omarchy restart shell
 ```
 

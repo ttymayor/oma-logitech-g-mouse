@@ -22,6 +22,7 @@ function defaultStatus() {
     dpiMax: 32000,
     dpiPresets: [800, 1200, 1600, 2400, 3200],
     reportRate: 1000,
+    onboardProfileMode: "unknown",
     lod: "unknown",
     hasHits: false,
     hitsLeft: defaultButton(),
@@ -30,21 +31,27 @@ function defaultStatus() {
   }
 }
 
+function externalText(value, fallback, maxLength) {
+  if (value === undefined || value === null) return fallback
+  return String(value)
+    .replace(/[<>&\u0000-\u001f\u007f]/g, "")
+    .slice(0, maxLength) || fallback
+}
+
 function parseStatus(raw) {
   var s = defaultStatus()
   if (!raw || raw === "") return s
 
   var data
   try { data = JSON.parse(raw) }
-  catch (e) { s.ok = false; s.error = "parse error: " + e; return s }
+  catch (e) { s.ok = false; s.error = "Invalid daemon status"; return s }
 
   s.connected = !!data.connected
-  if (data.deviceName) s.deviceName = String(data.deviceName)
-
+  s.deviceName = externalText(data.deviceName, s.deviceName, 128)
   if (data.battery) {
     s.batteryPercentage = typeof data.battery.percentage === "number" ? data.battery.percentage : LEVEL_UNKNOWN
-    s.batteryLevel = String(data.battery.level || "unknown")
-    s.batteryStatus = String(data.battery.status || "unknown")
+    s.batteryLevel = externalText(data.battery.level, "unknown", 32)
+    s.batteryStatus = externalText(data.battery.status, "unknown", 32)
   }
 
   if (data.dpi) {
@@ -52,7 +59,7 @@ function parseStatus(raw) {
     s.defaultDpiX = data.dpi.defaultDpiX || 0
     s.dpiY = data.dpi.dpiY || 0
     s.defaultDpiY = data.dpi.defaultDpiY || 0
-    s.lod = String(data.dpi.lod || "unknown")
+    s.lod = externalText(data.dpi.lod, "unknown", 32)
   }
 
   if (typeof data.dpiMin === "number") s.dpiMin = data.dpiMin
@@ -63,6 +70,10 @@ function parseStatus(raw) {
 
   if (data.reportRate) {
     s.reportRate = Number(data.reportRate) || 1000
+  }
+
+  if (data.onboardProfileMode) {
+    s.onboardProfileMode = externalText(data.onboardProfileMode.mode, "unknown", 32)
   }
 
   s.hasHits = !!data.hasHits
@@ -84,7 +95,7 @@ function parseStatus(raw) {
     }
   }
 
-  if (data.error) s.error = String(data.error)
+  if (data.error) s.error = externalText(data.error, "", 512)
   s.ok = true
   return s
 }

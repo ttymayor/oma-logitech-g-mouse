@@ -44,7 +44,7 @@ The bundled executable targets x86_64 GNU/Linux. Build it on the target architec
 ./bin/logitech-g-daemon --set-haptics 5 --left
 ```
 
-Each invocation prints one JSON status object and updates `/tmp/omarchy-logitech-g-mouse.json`. `Service.qml` depends on this output contract.
+Each invocation prints one JSON status object. It also atomically publishes the latest status as a mode-`0600` regular file under `${XDG_RUNTIME_DIR}/omarchy-logitech-g-mouse/`; the UI consumes the bounded stdout contract rather than that file.
 
 ### HID++ features
 
@@ -84,7 +84,7 @@ Use a no-op write matching the current DPI to exercise a hardware write without 
 
 ## Releases
 
-`manifest.json` is the canonical plugin version. On a push to `main`, `.github/workflows/release.yml` creates a GitHub Release and `v<version>` tag when that semantic version does not already have a tag. It publishes release notes only; it does not attach a binary.
+`manifest.json` is the canonical plugin version. On a push to `main`, `.github/workflows/release.yml` builds the controller from the locked source at the triggering full commit SHA, creates a GitHub Release and `v<version>` tag when that semantic version does not already have a tag, and attaches the CI-built binary, its SHA-256 checksum, and provenance JSON.
 
 To release:
 

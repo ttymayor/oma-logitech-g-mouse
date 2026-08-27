@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - manifest.json
+      - Cargo.toml
+      - Cargo.lock
+      - src/**
+      - bin/logitech-g-daemon
       - .github/workflows/release.yml
   workflow_dispatch:
 
@@ -15,10 +19,38 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
+      - name: Verify bundled controller matches locked source
+        shell: bash
+        env:
+          BUILDER_IMAGE: rust@sha256:408fe88047cef61a2087653b0c5255fa51c0f2d6d94ddedd7a2562a9b91a46f6
+        run: |
+          set -euo pipefail
+          export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"
+          export CARGO_INCREMENTAL=0
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --mount "type=bind,src=$GITHUB_WORKSPACE,dst=/workspace" \
+            --workdir /workspace \
+            --env SOURCE_DATE_EPOCH \
+            --env CARGO_INCREMENTAL \
+            "$BUILDER_IMAGE" \
+            bash -ceu 'cargo clean && cargo build --locked --release'
+          cmp --silent target/release/logitech-g-daemon bin/logitech-g-daemon
+          mkdir release-assets
+          install -Dm755 bin/logitech-g-daemon release-assets/logitech-g-daemon
+          sha256sum release-assets/logitech-g-daemon > release-assets/logitech-g-daemon.sha256
+          jq -n \
+            --arg commit "$GITHUB_SHA" \
+            --arg source_date_epoch "$SOURCE_DATE_EPOCH" \
+            --arg builder_image "$BUILDER_IMAGE" \
+            --arg cargo_lock_sha256 "$(sha256sum Cargo.lock | cut -d' ' -f1)" \
+            --arg binary_sha256 "$(cut -d' ' -f1 release-assets/logitech-g-daemon.sha256)" \
+            '{commit: $commit, source_date_epoch: $source_date_epoch, builder_image: $builder_image, cargo_lock_sha256: $cargo_lock_sha256, binary_sha256: $binary_sha256, verified_bundled_binary: true}' \
+            > release-assets/provenance.json
 
       - name: Read and validate plugin version
         id: version
@@ -53,4 +85,7 @@ jobs:
           gh release create "v${VERSION}" \
             --target "$GITHUB_SHA" \
             --title "v${VERSION}" \
-            --generate-notes
+            --generate-notes \
+            release-assets/logitech-g-daemon \
+            release-assets/logitech-g-daemon.sha256 \
+            release-assets/provenance.json

@@ -56,15 +56,19 @@ If the widget stays disconnected, first check whether the native controller can 
 ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/bin/logitech-g-daemon --once
 ```
 
-If it returns `EACCES: Permission denied`, your session lacks HID device access. This can occur in containers, headless sessions, or systems without `systemd-logind`. Create a udev rule only in that case:
+If it returns `EACCES: Permission denied`, your session lacks HID device access. This can occur in containers, headless sessions, or systems without `systemd-logind`. Keep the normal `uaccess` path when available. For a headless system, grant access only to a dedicated local group:
 
 ```bash
+sudo groupadd --system logitech-hidraw
+sudo usermod -aG logitech-hidraw "$USER"
 sudo tee /etc/udev/rules.d/42-logitech-mouse.rules << 'EOF'
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0666"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", GROUP="logitech-hidraw", MODE="0660"
 EOF
 sudo udevadm control --reload
 sudo udevadm trigger
 ```
+
+Log out and back in before using the new group membership.
 
 ## Uninstall
 
@@ -78,9 +82,7 @@ For a manually installed plugin:
 
 ```bash
 omarchy plugin disable tantuyu.logitech-g-mouse
-rm -rf ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
-rm -f /tmp/omarchy-logitech-g-mouse.json
-omarchy-shell shell rescanPlugins
+rm -rf "${XDG_RUNTIME_DIR:-/run/user/$UID}/omarchy-logitech-g-mouse"
 omarchy restart shell
 ```
 

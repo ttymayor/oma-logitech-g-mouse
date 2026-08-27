@@ -117,6 +117,7 @@ Panel {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.deviceName.toUpperCase()
+                            textFormat: Text.PlainText
                             color: root.foreground
                             font.family: root.fontFamily
                             font.pixelSize: Style.font.subtitle

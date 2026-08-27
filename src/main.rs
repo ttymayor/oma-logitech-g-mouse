@@ -2,7 +2,8 @@ use std::{
     env,
     fs::{self, File, OpenOptions},
     io::{Read, Write},
-    os::unix::fs::OpenOptionsExt,
+    os::unix::fs::{OpenOptionsExt, PermissionsExt},
+    path::PathBuf,
     thread,
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
@@ -11,7 +12,9 @@ const VID: u32 = 0x046d;
 const REPORT_LONG: u8 = 0x11;
 const LONG_LEN: usize = 20;
 const SWID: u8 = 0x07;
-const STATUS_PATH: &str = "/tmp/omarchy-logitech-g-mouse.json";
+const STATUS_FILE: &str = "status.json";
+const MAX_DEVICE_NAME_BYTES: usize = 128;
+const MAX_ERROR_BYTES: usize = 512;
 const DPI_PRESETS: [u32; 5] = [800, 1200, 1600, 2400, 3200];
 
 #[derive(Clone, Copy)]
@@ -207,10 +210,11 @@ fn features(device: &mut Device) -> Features {
 }
 
 fn device_name(device: &mut Device, feature: u8) -> Result<String, String> {
-    let length = *device
+    let length = (*device
         .request(feature, 0, &[], 3, Duration::from_millis(400))?
         .first()
-        .unwrap_or(&0) as usize;
+        .unwrap_or(&0) as usize)
+        .min(MAX_DEVICE_NAME_BYTES);
     let mut bytes = Vec::with_capacity(length);
     for offset in (0..length).step_by(16) {
         let chunk = device.request(feature, 1, &[offset as u8], 3, Duration::from_millis(400))?;
@@ -348,15 +352,12 @@ fn set_button(
         .map(|_| ())
 }
 
-fn set_dpi(device: &mut Device, features: Features, target: u32) -> Result<(), String> {
-    if features.profiles > 0 {
-        let _ = device.request(features.profiles, 1, &[2], 3, Duration::from_millis(400));
-    }
+fn set_dpi(device: &mut Device, feature: u8, target: u32) -> Result<(), String> {
     let value = target.clamp(100, 32000) / 50 * 50;
     let [high, low] = (value as u16).to_be_bytes();
     device
         .request(
-            features.dpi,
+            feature,
             6,
             &[0, high, low, high, low, 2],
             3,
@@ -381,14 +382,65 @@ fn set_report_rate(device: &mut Device, feature: u8, rate: u32) {
     }
 }
 
+fn onboard_mode(device: &mut Device, feature: u8) -> Result<(u8, &'static str), String> {
+    let mode = *device
+        .request(feature, 2, &[], 3, Duration::from_millis(400))?
+        .first()
+        .ok_or_else(|| "empty onboard-profile mode response".to_owned())?;
+    let label = match mode {
+        1 => "onboard",
+        2 => "host",
+        _ => "unknown",
+    };
+    Ok((mode, label))
+}
+
+fn set_onboard_mode(device: &mut Device, feature: u8, mode: u8) -> Result<(), String> {
+    if !matches!(mode, 1 | 2) {
+        return Err(format!("invalid onboard-profile mode: {mode}"));
+    }
+    device
+        .request(feature, 1, &[mode], 3, Duration::from_millis(400))
+        .map(|_| ())
+}
+
+fn bounded(value: &str, max_bytes: usize) -> &str {
+    if value.len() <= max_bytes {
+        return value;
+    }
+    let mut end = max_bytes;
+    while !value.is_char_boundary(end) {
+        end -= 1;
+    }
+    &value[..end]
+}
+
 fn quote(value: &str) -> String {
-    format!(
-        "\"{}\"",
-        value
-            .replace('\\', "\\\\")
-            .replace('\"', "\\\"")
-            .replace('\n', "\\n")
-    )
+    let mut escaped = String::with_capacity(value.len() + 2);
+    escaped.push('"');
+    for character in value.chars() {
+        match character {
+            '\\' => escaped.push_str("\\\\"),
+            '"' => escaped.push_str("\\\""),
+            '\n' => escaped.push_str("\\n"),
+            '\r' => escaped.push_str("\\r"),
+            '\t' => escaped.push_str("\\t"),
+            '\u{08}' => escaped.push_str("\\b"),
+            '\u{0c}' => escaped.push_str("\\f"),
+            character if character.is_control() => {
+                const HEX: &[u8; 16] = b"0123456789abcdef";
+                let code = character as u32;
+                escaped.push_str("\\u");
+                escaped.push(HEX[((code >> 12) & 0xf) as usize] as char);
+                escaped.push(HEX[((code >> 8) & 0xf) as usize] as char);
+                escaped.push(HEX[((code >> 4) & 0xf) as usize] as char);
+                escaped.push(HEX[(code & 0xf) as usize] as char);
+            }
+            character => escaped.push(character),
+        }
+    }
+    escaped.push('"');
+    escaped
 }
 fn timestamp() -> u128 {
     SystemTime::now()
@@ -452,6 +504,18 @@ fn status(device: &mut Device, features: Features) -> String {
     } else {
         1000
     };
+    let onboard_profile_mode = if features.profiles > 0 {
+        match onboard_mode(device, features.profiles) {
+            Ok((code, mode)) => format!("{{\"code\":{code},\"mode\":\"{mode}\"}}"),
+            Err(error) => {
+                errors.push(format!("onboard profiles: {error}"));
+                "null".into()
+            }
+        }
+    } else {
+        "null".into()
+    };
+
     let hits = if features.hits > 0 {
         match (
             button(device, features.hits, 0),
@@ -472,10 +536,10 @@ fn status(device: &mut Device, features: Features) -> String {
     let error = if errors.is_empty() {
         "null".into()
     } else {
-        quote(&errors.join("; "))
+        quote(bounded(&errors.join("; "), MAX_ERROR_BYTES))
     };
     format!(
-        "{{\"connected\":true,\"deviceName\":{},\"battery\":{battery},\"dpi\":{dpi_value},\"dpiMin\":100,\"dpiMax\":{max},\"dpiPresets\":[{}],\"reportRate\":{rate},\"hasHits\":{},\"hits\":{hits},\"error\":{error},\"updatedAt\":{}}}",
+        "{{\"connected\":true,\"deviceName\":{},\"battery\":{battery},\"dpi\":{dpi_value},\"dpiMin\":100,\"dpiMax\":{max},\"dpiPresets\":[{}],\"reportRate\":{rate},\"onboardProfileMode\":{onboard_profile_mode},\"hasHits\":{},\"hits\":{hits},\"error\":{error},\"updatedAt\":{}}}",
         quote(&name),
         presets
             .iter()
@@ -489,13 +553,48 @@ fn status(device: &mut Device, features: Features) -> String {
 
 fn offline(error: &str) -> String {
     format!(
-        "{{\"connected\":false,\"deviceName\":\"Logitech G Mouse\",\"battery\":null,\"dpi\":null,\"dpiMin\":100,\"dpiMax\":32000,\"dpiPresets\":[800,1200,1600,2400,3200],\"reportRate\":1000,\"hasHits\":false,\"hits\":null,\"error\":{},\"updatedAt\":{}}}",
-        quote(error),
+        "{{\"connected\":false,\"deviceName\":\"Logitech G Mouse\",\"battery\":null,\"dpi\":null,\"dpiMin\":100,\"dpiMax\":32000,\"dpiPresets\":[800,1200,1600,2400,3200],\"reportRate\":1000,\"onboardProfileMode\":null,\"hasHits\":false,\"hits\":null,\"error\":{},\"updatedAt\":{}}}",
+        quote(bounded(error, MAX_ERROR_BYTES)),
         timestamp()
     )
 }
+fn status_path() -> Result<PathBuf, String> {
+    let runtime_dir = env::var_os("XDG_RUNTIME_DIR")
+        .map(PathBuf::from)
+        .ok_or_else(|| "XDG_RUNTIME_DIR is not set".to_owned())?;
+    let directory = runtime_dir.join("omarchy-logitech-g-mouse");
+    fs::create_dir_all(&directory).map_err(|error| format!("create state directory: {error}"))?;
+    let metadata = fs::symlink_metadata(&directory)
+        .map_err(|error| format!("inspect state directory: {error}"))?;
+    if !metadata.is_dir() {
+        return Err("state path is not a directory".into());
+    }
+    fs::set_permissions(&directory, fs::Permissions::from_mode(0o700))
+        .map_err(|error| format!("protect state directory: {error}"))?;
+    Ok(directory.join(STATUS_FILE))
+}
+
+fn write_status(value: &str) -> Result<(), String> {
+    let path = status_path()?;
+    let temporary = path.with_extension(format!("{}-{}.tmp", std::process::id(), timestamp()));
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .custom_flags(0o400000)
+        .mode(0o600)
+        .open(&temporary)
+        .map_err(|error| format!("create state file: {error}"))?;
+    file.write_all(value.as_bytes())
+        .and_then(|_| file.write_all(b"\n"))
+        .and_then(|_| file.sync_all())
+        .map_err(|error| format!("write state file: {error}"))?;
+    fs::rename(&temporary, path).map_err(|error| format!("publish state file: {error}"))
+}
+
 fn emit(value: String) {
-    let _ = fs::write(STATUS_PATH, format!("{value}\n"));
+    if let Err(error) = write_status(&value) {
+        eprintln!("state write failed: {error}");
+    }
     println!("{value}");
 }
 
@@ -508,6 +607,7 @@ struct Args {
     haptics: Option<u8>,
     dpi: Option<u32>,
     rate: Option<u32>,
+    profile_mode: Option<u8>,
     left: bool,
     right: bool,
 }
@@ -562,6 +662,16 @@ fn parse_args() -> Args {
                     i += 1;
                 }
             }
+            "--set-profile-mode" => {
+                if let Some(mode) = values.get(i + 1).and_then(|value| match value.as_str() {
+                    "onboard" => Some(1),
+                    "host" => Some(2),
+                    _ => None,
+                }) {
+                    args.profile_mode = Some(mode);
+                    i += 1;
+                }
+            }
             "--left" => args.left = true,
             "--right" => args.right = true,
             _ => {}
@@ -585,7 +695,8 @@ fn main() {
         || args.rapid_trigger.is_some()
         || args.haptics.is_some()
         || args.dpi.is_some()
-        || args.rate.is_some();
+        || args.rate.is_some()
+        || args.profile_mode.is_some();
     let result = (|| -> Result<(), String> {
         if args.actuation.is_some() || args.rapid_trigger.is_some() || args.haptics.is_some() {
             for index in if args.left {
@@ -606,10 +717,13 @@ fn main() {
             }
         }
         if let Some(value) = args.dpi {
-            set_dpi(&mut device, features, value)?;
+            set_dpi(&mut device, features.dpi, value)?;
         }
         if let Some(value) = args.rate {
             set_report_rate(&mut device, features.report_rate, value);
+        }
+        if let Some(mode) = args.profile_mode {
+            set_onboard_mode(&mut device, features.profiles, mode)?;
         }
         Ok(())
     })();
@@ -623,5 +737,24 @@ fn main() {
             break;
         }
         thread::sleep(Duration::from_secs(args.interval.max(1)));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{bounded, quote};
+
+    #[test]
+    fn quotes_control_characters_as_json() {
+        assert_eq!(
+            quote("a\r\n\t\u{0001}\"\\b"),
+            "\"a\\r\\n\\t\\u0001\\\"\\\\b\""
+        );
+    }
+
+    #[test]
+    fn bounds_at_utf8_boundary() {
+        assert_eq!(bounded("éclair", 1), "");
+        assert_eq!(bounded("éclair", 2), "é");
     }
 }
