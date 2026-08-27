@@ -72,14 +72,14 @@ function parseStatus(raw) {
       s.hitsLeft = {
         actuation: data.hits.left.actuation || 0,
         rapidTrigger: data.hits.left.rapidTrigger || 0,
-        haptics: data.hits.left.haptics || 0
+        haptics: typeof data.hits.left.haptics === "number" ? data.hits.left.haptics : 0
       }
     }
     if (data.hits.right) {
       s.hitsRight = {
         actuation: data.hits.right.actuation || 0,
         rapidTrigger: data.hits.right.rapidTrigger || 0,
-        haptics: data.hits.right.haptics || 0
+        haptics: typeof data.hits.right.haptics === "number" ? data.hits.right.haptics : 0
       }
     }
   }
@@ -137,7 +137,7 @@ function rapidTriggerLabel(level) {
 }
 
 function hapticsLabel(level) {
-  if (level <= 0) return "--"
+  if (level < 0) return "--"
   return "L" + String(level)
 }
 

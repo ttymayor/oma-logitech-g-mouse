@@ -117,7 +117,7 @@ Item {
     }
 
     function setHaptics(btn, level) {
-        var hap = Math.max(1, Math.min(6, Math.round(level)))
+        var hap = Math.max(0, Math.min(5, Math.round(level)))
         if (btn === 0) {
             hitsLeft = {
                 actuation: hitsLeft.actuation,

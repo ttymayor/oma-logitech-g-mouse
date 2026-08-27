@@ -324,7 +324,7 @@ fn button(device: &mut Device, feature: u8, index: u8) -> Result<(u8, u8, u8), S
     Ok((
         body.get(1).unwrap_or(&0) / 4,
         body.get(2).unwrap_or(&0) / 4,
-        body.get(3).unwrap_or(&0) / 4 + 1,
+        body.get(3).unwrap_or(&0) / 4,
     ))
 }
 
@@ -341,7 +341,7 @@ fn set_button(
         index,
         actuation.map_or(*current.get(1).unwrap_or(&0), |value| value * 4),
         rapid_trigger.map_or(*current.get(2).unwrap_or(&0), |value| value * 4),
-        haptics.map_or(*current.get(3).unwrap_or(&0), |value| (value - 1) * 4),
+        haptics.map_or(*current.get(3).unwrap_or(&0), |value| value * 4),
     ];
     device
         .request(feature, 1, &values, 3, Duration::from_millis(400))
@@ -546,7 +546,7 @@ fn parse_args() -> Args {
             }
             "--set-haptics" => {
                 if let Some(value) = next() {
-                    args.haptics = Some(value.clamp(1, 6) as u8);
+                    args.haptics = Some(value.clamp(0, 5) as u8);
                     i += 1;
                 }
             }

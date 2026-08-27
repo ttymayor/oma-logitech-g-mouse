@@ -630,7 +630,7 @@ Panel {
                                     Text {
                                         anchors.right: parent.right
                                         anchors.verticalCenter: parent.verticalCenter
-                                        text: "Level " + Math.round(leftHapSlider.dragging ? leftHapSlider.liveValue : (root.mouse ? root.mouse.hitsLeft.haptics : 1)) + " / 6"
+                                        text: "Level " + Math.round(leftHapSlider.dragging ? leftHapSlider.liveValue : (root.mouse ? root.mouse.hitsLeft.haptics : 0)) + " / 5"
                                         color: root.foreground
                                         font.family: root.fontFamily
                                         font.pixelSize: Style.font.bodySmall
@@ -642,12 +642,12 @@ Panel {
                                     id: leftHapSlider
                                     width: parent.width
                                     bar: root.bar
-                                    minimum: 1
-                                    maximum: 6
+                                    minimum: 0
+                                    maximum: 5
                                     step: 1
                                     integer: true
                                     tickCount: 6
-                                    value: root.hitsLeft.haptics || 1
+                                    value: (root.hitsLeft && root.hitsLeft.haptics !== undefined) ? root.hitsLeft.haptics : 0
                                     onMoved: function (val) {
                                         leftHapSlider.value = Math.round(val);
                                     }
@@ -665,7 +665,7 @@ Panel {
                                         model: 6
                                         Text {
                                             required property int index
-                                            readonly property int level: index + 1
+                                            readonly property int level: index
                                             readonly property int cur: Math.round(leftHapSlider.dragging ? leftHapSlider.liveValue : leftHapSlider.value)
                                             readonly property bool isCurrent: level === cur
                                             text: String(level)
@@ -881,7 +881,7 @@ Panel {
                                     Text {
                                         anchors.right: parent.right
                                         anchors.verticalCenter: parent.verticalCenter
-                                        text: "Level " + Math.round(rightHapSlider.dragging ? rightHapSlider.liveValue : (root.mouse ? root.mouse.hitsRight.haptics : 1)) + " / 6"
+                                        text: "Level " + Math.round(rightHapSlider.dragging ? rightHapSlider.liveValue : (root.mouse ? root.mouse.hitsRight.haptics : 0)) + " / 5"
                                         color: root.foreground
                                         font.family: root.fontFamily
                                         font.pixelSize: Style.font.bodySmall
@@ -893,12 +893,12 @@ Panel {
                                     id: rightHapSlider
                                     width: parent.width
                                     bar: root.bar
-                                    minimum: 1
-                                    maximum: 6
+                                    minimum: 0
+                                    maximum: 5
                                     step: 1
                                     integer: true
                                     tickCount: 6
-                                    value: root.hitsRight.haptics || 1
+                                    value: (root.hitsRight && root.hitsRight.haptics !== undefined) ? root.hitsRight.haptics : 0
                                     onMoved: function (val) {
                                         rightHapSlider.value = Math.round(val);
                                     }
@@ -916,7 +916,7 @@ Panel {
                                         model: 6
                                         Text {
                                             required property int index
-                                            readonly property int level: index + 1
+                                            readonly property int level: index
                                             readonly property int cur: Math.round(rightHapSlider.dragging ? rightHapSlider.liveValue : rightHapSlider.value)
                                             readonly property bool isCurrent: level === cur
                                             text: String(level)
