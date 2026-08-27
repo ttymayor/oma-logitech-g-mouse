@@ -265,6 +265,35 @@ function findDevice(): HidppDevice {
   throw new Error("No Logitech HID++ device found.");
 }
 
+function findReadyDevice(timeoutMs = 5000): HidppDevice {
+  const deadline = Date.now() + timeoutMs;
+  let lastError: unknown;
+
+  do {
+    try {
+      return findDevice();
+    } catch (e: unknown) {
+      lastError = e;
+      if (Date.now() >= deadline) break;
+      Bun.sleepSync(200);
+    }
+  } while (Date.now() < deadline);
+
+  const message = lastError instanceof Error ? lastError.message : String(lastError);
+  throw new Error(`Logitech receiver did not become ready within ${timeoutMs}ms: ${message}`);
+}
+
+function resolveFeatureIndices(dev: HidppDevice): FeatureIndices {
+  return {
+    name: dev.getFeatureIndex(FEAT_NAME, DEFAULT_INDICES.name),
+    battery: dev.getFeatureIndex(FEAT_UNIFIED_BATTERY, DEFAULT_INDICES.battery),
+    dpi: dev.getFeatureIndex(FEAT_EXT_DPI, DEFAULT_INDICES.dpi),
+    hits: dev.getFeatureIndex(FEAT_ANALOG_HITS, DEFAULT_INDICES.hits),
+    profiles: dev.getFeatureIndex(FEAT_ONBOARD_PROFILES, DEFAULT_INDICES.profiles),
+    reportRate: dev.getFeatureIndex(FEAT_REPORT_RATE, DEFAULT_INDICES.reportRate),
+  };
+}
+
 // ── Feature Readers & Writers ────────────────────────────────────────────
 
 function readDeviceName(dev: HidppDevice, featIdx: number): string {
@@ -491,10 +520,9 @@ function main(): void {
       targetRight = true;
     }
   }
-
   let dev: HidppDevice;
   try {
-    dev = findDevice();
+    dev = findReadyDevice();
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     const err: MouseStatus = {
@@ -516,14 +544,7 @@ function main(): void {
     process.exit(1);
   }
 
-  const features: FeatureIndices = {
-    name: DEFAULT_INDICES.name,
-    battery: DEFAULT_INDICES.battery,
-    dpi: DEFAULT_INDICES.dpi,
-    hits: DEFAULT_INDICES.hits,
-    profiles: DEFAULT_INDICES.profiles,
-    reportRate: DEFAULT_INDICES.reportRate,
-  };
+  const features = resolveFeatureIndices(dev);
 
   // Handle write actions
   if (setActuation !== undefined || setRapidTrigger !== undefined || setHaptics !== undefined) {
