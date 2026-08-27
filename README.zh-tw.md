@@ -1,186 +1,92 @@
-# 羅技 G 系列滑鼠 — Omarchy Plugin (oma-logitech-g-mouse)
+# Logitech G Mouse
 
 [English](README.md) | **繁體中文**
 
-專為 **Logitech G 系列電競滑鼠**（包含 G PRO X2 SUPERSTRIKE、G PRO X SUPERLIGHT 1/2、G502 系列等）設計的 [Omarchy Quattro](https://omarchyplugins.com/develop.html) 狀態列外掛（Bar Widget + Control Panel）。
+適用於 Logitech G 系列電競滑鼠的 [Omarchy Quattro](https://omarchy.org/) 狀態列小工具與控制面板。無需 Logitech G HUB，即可讀取電池狀態，並調整 DPI、回報率；支援的滑鼠還可調整 HITS 類比按鍵設定。
 
-透過 Linux 原生 `/dev/hidraw` 節點與 Logitech **HID++ 2.0** 協議直接通訊，無需官方 G HUB，即可在 Omarchy 桌面環境中享有完整的遙測讀取、靈敏度、回報率與類比開關調校功能。
+## 需求
 
-## 安裝與解除安裝（Install & Uninstall）
+- x86_64 Linux 上的 Omarchy Quattro。
+- 可透過 `/dev/hidraw` 存取的 Logitech G 滑鼠。
 
-### 安裝（Install）
+外掛隨附原生控制程式；使用時不需要 Bun、Node.js、Python 或 Rust。
 
-#### 方法 A：透過 Omarchy CLI 遠端安裝（Git 安裝）
+## 安裝
 
-若本專案已推送至公開或私有 Git 倉庫，可直接一行指令安裝並啟用：
+### 從 GitHub 安裝
 
 ```bash
 omarchy plugin add https://github.com/ttymayor/oma-logitech-g-mouse.git --enable
 omarchy restart shell
 ```
 
-#### 方法 B：本地手動安裝（從本專案原始碼部署）
-
-如果是本地端開發或從原始碼資料夾安裝：
+### 從本機原始碼安裝
 
 ```bash
-# 1. 複製外掛檔案至 Omarchy 使用者外掛目錄
 mkdir -p ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
-cp -a * ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/
-
-# 2. 驗證外掛結構規範
+cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/
 omarchy plugin validate ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
-
-# 3. 讓 Shell 重新掃描外掛清單並在狀態列右側啟用
 omarchy-shell shell rescanPlugins
 omarchy plugin enable tantuyu.logitech-g-mouse --section right
-
-# 4. 重啟 Omarchy Shell 載入 QML 元件
 omarchy restart shell
 ```
 
----
+## 使用方式
 
-### 解除安裝（Uninstall）
+- **左鍵點擊**狀態列小工具以開啟控制面板。
+- **右鍵點擊**切換是否顯示電量百分比。
+- 在 **Sensor** 分頁選擇 DPI 預設值、以每次 50 DPI 調整 DPI，或選取滑鼠支援的回報率。
+- 相容的類比按鍵滑鼠可在 **Buttons** 分頁分別設定 Actuation Point、Rapid Trigger 與 Click Haptics。
 
-#### 方法 A：透過 Omarchy CLI 移除
-
-```bash
-# 停用外掛並從系統中完全移除
-omarchy plugin disable tantuyu.logitech-g-mouse
-omarchy plugin remove tantuyu.logitech-g-mouse --yes
-omarchy restart shell
-```
-
-#### 方法 B：手動完全清除
-
-```bash
-# 1. 停用外掛
-omarchy plugin disable tantuyu.logitech-g-mouse
-
-# 2. 刪除外掛目錄與暫存狀態快取檔
-rm -rf ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
-rm -f /tmp/omarchy-logitech-g-mouse.json
-
-# 3. 通知 Shell 重新掃描並重啟
-omarchy-shell shell rescanPlugins
-omarchy restart shell
-```
-
----
-
-## 功能
-
-### 狀態列小工具
-
-- **電量與狀態**：顯示 `99% 󰁹`、充電圖示（`󰂅`）或離線狀態（`Off 󰍽`）。
-- **右鍵切換百分比**：切換圖示模式（`󰁹`）與百分比模式（`99% 󰁹`）；設定儲存在 `~/.config/omarchy/shell.json`。
-- **主題整合**：使用系統 `foreground` 色彩；面板開啟時不改變狀態列顏色。
-
-### 控制面板
-
-左鍵開啟含兩個分頁的 `KeyboardPanel`：
-
-- **`Sensor (DPI / Polling)`**
-  - **DPI 預設**：依滑鼠板載預設清單產生滿寬按鈕。
-  - **DPI 滑桿**：從 `100` 到偵測到的感應器最大值，每次調整 50 DPI。
-  - **回報率**：若 HID++ Feature `0x8061` 支援，可選擇 `125` / `250` / `500` / `1K` / `2K` / `4K` / `8K Hz`。
-- **`Buttons (Analog HITS)`** _(僅在具備類比開關的滑鼠顯示)_
-  - 左右鍵分別設定 **Actuation Point**（`1`–`10`）、**Rapid Trigger**（`1`–`5`）與 **Click Haptics**（`1`–`6`）。
-  - 每個滑桿下方有數字刻度。
-  - 樂觀狀態更新可避免硬體寫入期間滑桿回彈。
+小工具會在開機或接收器重新連線後自動重連，最多等待五秒讓接收器完成初始化。
 
 ## 截圖
 
-### Sensor 分頁
+![Sensor 分頁：電池、DPI 與回報率控制](screenshot-1.png)
+![Buttons 分頁：類比按鍵控制](screenshot-2.png)
 
-![Sensor 分頁：電量、DPI 與回報率設定](screenshot-1.png)
-![Buttons 分頁：類比開關按鈕調校](screenshot-2.png)
+## 疑難排解
 
-`Buttons (Analog HITS)` 分頁的截圖預計將新增為 `screenshot-2.png`。
----
+Omarchy 與其他使用 systemd 的桌面會話通常會由 `systemd-logind` 透過 `uaccess` 自動授予登入使用者 `/dev/hidraw*` 的存取權。
 
-## 開發與修改套用
-
-- **修改了 QML / 介面（`Panel.qml`、`BarWidget.qml`、`Model.js`）**：
-  因為 Omarchy 關閉了 QML 自動檔案監聽以維持系統穩定，修改後**必須重啟 Shell**：
-  ```bash
-  cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
-  ```
-- **修改原生驅動（`src/main.rs`）**：
-  同步前必須先建立並封裝執行檔：`cargo build --release && install -Dm755 target/release/logitech-g-daemon bin/logitech-g-daemon`。接著執行上方 QML／介面同步指令，並重啟 Shell。
-- **一鍵驗證、同步與重啟指令**：
-  ```bash
-  omarchy plugin validate . && cp -a . ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/ && omarchy restart shell
-  ```
-
----
-
-## 獨立 CLI 命令列控制
-
-隨附的原生驅動亦可作為獨立命令列工具使用：
+若小工具持續顯示離線，先確認原生控制程式是否能偵測滑鼠：
 
 ```bash
-# 讀取完整狀態（JSON 輸出）
-./bin/logitech-g-daemon --once
-
-# 設定 DPI（支援 100 ~ 32,000）
-./bin/logitech-g-daemon --set-dpi 1600
-
-# 設定回報率（125 / 250 / 500 / 1000 / 2000 / 4000 / 8000 Hz）
-./bin/logitech-g-daemon --set-rate 4000
-
-# 設定下壓觸發點 Actuation Point（1~10 級）
-./bin/logitech-g-daemon --set-actuation 4 --left
-./bin/logitech-g-daemon --set-actuation 6 --right
-
-# 設定快速復位行程 Rapid Trigger（1~5 級）
-./bin/logitech-g-daemon --set-rt 2 --left
-
-# 設定震動點擊回饋 Click Haptics（1~6）
-./bin/logitech-g-daemon --set-haptics 5
+~/.config/omarchy/plugins/tantuyu.logitech-g-mouse/bin/logitech-g-daemon --once
 ```
 
----
-
-## HID++ 2.0 協議對照
-
-| 功能                     | Feature ID | Index  | 備註                                                                |
-| :----------------------- | :--------- | :----- | :------------------------------------------------------------------ |
-| **Device Name**          | `0x0005`   | `0x03` | 行銷型號名稱動態讀取（如 `PRO X2 SUPERSTRIKE`、`PRO X SUPERLIGHT`） |
-| **Unified Battery**      | `0x1004`   | `0x06` | 電量百分比、電量等級、即時充電狀態                                  |
-| **Extended DPI**         | `0x2202`   | `0x09` | 感應器參數讀寫（支援至 32K DPI）與 LOD 狀態                         |
-| **Onboard Profiles**     | `0x8100`   | `0x0e` | 板載設定檔切換、Host Mode 模式解鎖                                  |
-| **HITS Analog Switches** | `0x1B0C`   | `0x0c` | 類比觸發（1-10）、Rapid Trigger（1-5）、震動力度（1-6）             |
-| **Extended Report Rate** | `0x8061`   | `0x0d` | 高頻輪詢率控制（125Hz 至 8000Hz）                                   |
-
----
-
-## 權限與 Udev 規則
-
-> **提示：** 在 Arch Linux、Omarchy 以及絕大多數現代基於 systemd 的桌面環境中，**你通常「不需要」執行這個步驟！**  
-> 系統內建的 `systemd-logind` 會自動透過 `uaccess` 動態存取控制清單（ACL），直接將 `/dev/hidraw*` 的讀寫權限（`user:username:rw-`）授予當前登入桌面的使用者帳號。
-
-### 什麼情況下才需要執行此步驟？
-
-只有在遇到以下少數特殊情況時才需要設定：
-
-1. 執行 `./bin/logitech-g-daemon --once` 時噴出 **`EACCES: Permission denied`**（權限不足）錯誤。
-2. 使用沒有配置 `systemd-logind` 的極簡發行版、Docker 容器環境，或在沒有圖形登入會話（無 seat0）的純終端機/伺服器環境中執行。
-
-若遇到上述權限不足的情況，可建立以下 udev 規則賦予所有人讀寫權限：
+如果回傳 `EACCES: Permission denied`，表示目前會話沒有 HID 裝置權限。容器、無桌面會話環境，或沒有 `systemd-logind` 的系統可能發生此情況；僅在此時建立 udev 規則：
 
 ```bash
 sudo tee /etc/udev/rules.d/42-logitech-mouse.rules << 'EOF'
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0666"
 EOF
-
-sudo udevadm control --reload && sudo udevadm trigger
+sudo udevadm control --reload
+sudo udevadm trigger
 ```
 
----
+## 解除安裝
 
-## 授權條款
+```bash
+omarchy plugin disable tantuyu.logitech-g-mouse
+omarchy plugin remove tantuyu.logitech-g-mouse --yes
+omarchy restart shell
+```
 
-MIT License.  
-Logitech、G PRO、SUPERSTRIKE 為羅技公司之註冊商標，本專案為第三方獨立開源外掛，與羅技官方無隸屬關係。
+若是手動安裝的外掛：
+
+```bash
+omarchy plugin disable tantuyu.logitech-g-mouse
+rm -rf ~/.config/omarchy/plugins/tantuyu.logitech-g-mouse
+rm -f /tmp/omarchy-logitech-g-mouse.json
+omarchy-shell shell rescanPlugins
+omarchy restart shell
+```
+
+## 開發
+
+開發說明僅提供英文版，請見 [DEVELOPMENT.md](DEVELOPMENT.md)。
+
+## 授權
+
+MIT License。Logitech、G PRO 與 SUPERSTRIKE 是 Logitech 的商標；本專案為獨立第三方開源外掛，與 Logitech 無隸屬關係。
