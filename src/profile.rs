@@ -71,15 +71,15 @@ impl Profile {
     }
 
     pub(crate) fn apply(&self, device: &mut Device, features: Features) -> Result<(), String> {
-        if let Some(feature) = features.hits {
-            apply_button(device, feature, 0, self.left)?;
-            apply_button(device, feature, 1, self.right)?;
-        }
         if let Some(dpi) = self.dpi {
             set_dpi(device, features.dpi, dpi)?;
         }
         if let Some(rate) = self.rate {
             set_report_rate(device, features.report_rate, rate);
+        }
+        if let Some(feature) = features.hits {
+            apply_button(device, feature, 0, self.left)?;
+            apply_button(device, feature, 1, self.right)?;
         }
         Ok(())
     }
