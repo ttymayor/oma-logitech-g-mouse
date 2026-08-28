@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "tantuyu.logitech-g-mouse",
   "name": "Logitech G Mouse",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "tantuyu",
   "license": "MIT",
   "description": "Battery, DPI, Polling Rate, and HITS analog trigger controls for Logitech G gaming mice in the Omarchy bar.",
