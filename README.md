@@ -42,9 +42,9 @@ The widget automatically reconnects after startup or a receiver reconnect. It wa
 
 ## Screenshots
 
-| Sensor tab                                                                      | Buttons tab                                                            |
-| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| ![Sensor tab showing battery, DPI, and polling-rate controls](screenshot-1.png) | ![Buttons tab showing analog-switch button controls](screenshot-2.png) |
+| Sensor tab                                                                 | Buttons tab                                                            |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| ![Sensor tab showing battery, DPI, and polling-rate controls](preview.png) | ![Buttons tab showing analog-switch button controls](screenshot-2.png) |
 
 ## Troubleshooting
 
