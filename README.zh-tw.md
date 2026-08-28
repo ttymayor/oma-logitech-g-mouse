@@ -88,8 +88,8 @@ omarchy restart shell
 
 ## 開發
 
-開發說明僅提供英文版，請見 [DEVELOPMENT.md](DEVELOPMENT.md)。
+[DEVELOPMENT.md](DEVELOPMENT.md)
 
 ## 授權
 
-MIT License。Logitech、G PRO 與 SUPERSTRIKE 是 Logitech 的商標；本專案為獨立第三方開源外掛，與 Logitech 無隸屬關係。
+[MIT License](LICENSE)。Logitech、G PRO 與 SUPERSTRIKE 是 Logitech 的商標；本專案為獨立第三方開源外掛，與 Logitech 無隸屬關係。

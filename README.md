@@ -92,4 +92,4 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for building the native controller, protoco
 
 ## License
 
-MIT License. Logitech, G PRO, and SUPERSTRIKE are trademarks of Logitech. This project is an independent third-party open-source plugin and is not affiliated with Logitech.
+[MIT License](LICENSE). Logitech, G PRO, and SUPERSTRIKE are trademarks of Logitech. This project is an independent third-party open-source plugin and is not affiliated with Logitech.
