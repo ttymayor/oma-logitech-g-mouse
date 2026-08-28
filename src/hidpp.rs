@@ -9,7 +9,7 @@ pub(crate) struct Features {
     pub(crate) name: u8,
     pub(crate) battery: u8,
     pub(crate) dpi: u8,
-    pub(crate) hits: u8,
+    pub(crate) hits: Option<u8>,
     pub(crate) profiles: u8,
     pub(crate) report_rate: u8,
 }
@@ -18,7 +18,7 @@ const DEFAULT_FEATURES: Features = Features {
     name: 0x03,
     battery: 0x06,
     dpi: 0x09,
-    hits: 0x0c,
+    hits: None,
     profiles: 0x0e,
     report_rate: 0x0d,
 };
@@ -28,7 +28,7 @@ pub(crate) fn features(device: &mut Device) -> Features {
         name: device.feature(0x0005, DEFAULT_FEATURES.name),
         battery: device.feature(0x1004, DEFAULT_FEATURES.battery),
         dpi: device.feature(0x2202, DEFAULT_FEATURES.dpi),
-        hits: device.feature(0x1b0c, DEFAULT_FEATURES.hits),
+        hits: device.feature_optional(0x1b0c),
         profiles: device.feature(0x8100, DEFAULT_FEATURES.profiles),
         report_rate: device.feature(0x8061, DEFAULT_FEATURES.report_rate),
     }

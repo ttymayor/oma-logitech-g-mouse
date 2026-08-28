@@ -74,6 +74,7 @@ Item {
 
     // Optimistic UI updates
     function setActuation(btn, level) {
+        if (!root.hasHits) return
         var act = Math.max(1, Math.min(10, Math.round(level)))
         if (btn === 0) {
             hitsLeft = {
@@ -97,6 +98,7 @@ Item {
     }
 
     function setRapidTrigger(btn, level) {
+        if (!root.hasHits) return
         var rt = Math.max(1, Math.min(5, Math.round(level)))
         if (btn === 0) {
             hitsLeft = {
@@ -120,6 +122,7 @@ Item {
     }
 
     function setHaptics(btn, level) {
+        if (!root.hasHits) return
         var hap = Math.max(0, Math.min(5, Math.round(level)))
         if (btn === 0) {
             hitsLeft = {

@@ -130,11 +130,8 @@ pub(crate) fn status(device: &mut Device, features: Features) -> String {
     } else {
         "null".into()
     };
-    let hits = if features.hits > 0 {
-        match (
-            button(device, features.hits, 0),
-            button(device, features.hits, 1),
-        ) {
+    let hits = if let Some(feature) = features.hits {
+        match (button(device, feature, 0), button(device, feature, 1)) {
             (Ok(left), Ok(right)) => format!(
                 "{{\"left\":{{\"actuation\":{},\"rapidTrigger\":{},\"haptics\":{}}},\"right\":{{\"actuation\":{},\"rapidTrigger\":{},\"haptics\":{}}}}}",
                 left.0, left.1, left.2, right.0, right.1, right.2
@@ -160,7 +157,7 @@ pub(crate) fn status(device: &mut Device, features: Features) -> String {
             .map(u16::to_string)
             .collect::<Vec<_>>()
             .join(","),
-        features.hits > 0,
+        features.hits.is_some(),
         timestamp()
     )
 }

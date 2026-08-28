@@ -48,28 +48,33 @@ impl Profile {
 
     pub(crate) fn capture(device: &mut Device, features: Features) -> Result<Self, String> {
         let (dpi, _, _, _, _) = dpi(device, features.dpi)?;
-        let (left_actuation, left_rapid_trigger, left_haptics) = button(device, features.hits, 0)?;
-        let (right_actuation, right_rapid_trigger, right_haptics) =
-            button(device, features.hits, 1)?;
-        Ok(Self {
+        let mut profile = Self {
             dpi: Some(u32::from(dpi)),
             rate: Some(report_rate(device, features.report_rate)),
-            left: ButtonProfile {
+            ..Self::default()
+        };
+        if let Some(feature) = features.hits {
+            let (left_actuation, left_rapid_trigger, left_haptics) = button(device, feature, 0)?;
+            let (right_actuation, right_rapid_trigger, right_haptics) = button(device, feature, 1)?;
+            profile.left = ButtonProfile {
                 actuation: Some(left_actuation),
                 rapid_trigger: Some(left_rapid_trigger),
                 haptics: Some(left_haptics),
-            },
-            right: ButtonProfile {
+            };
+            profile.right = ButtonProfile {
                 actuation: Some(right_actuation),
                 rapid_trigger: Some(right_rapid_trigger),
                 haptics: Some(right_haptics),
-            },
-        })
+            };
+        }
+        Ok(profile)
     }
 
     pub(crate) fn apply(&self, device: &mut Device, features: Features) -> Result<(), String> {
-        apply_button(device, features.hits, 0, self.left)?;
-        apply_button(device, features.hits, 1, self.right)?;
+        if let Some(feature) = features.hits {
+            apply_button(device, feature, 0, self.left)?;
+            apply_button(device, feature, 1, self.right)?;
+        }
         if let Some(dpi) = self.dpi {
             set_dpi(device, features.dpi, dpi)?;
         }

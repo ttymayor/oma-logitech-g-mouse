@@ -105,7 +105,7 @@ impl Device {
         }
     }
 
-    pub(crate) fn feature(&mut self, id: u16, fallback: u8) -> u8 {
+    pub(crate) fn feature_optional(&mut self, id: u16) -> Option<u8> {
         self.request(
             0,
             0,
@@ -116,7 +116,10 @@ impl Device {
         .ok()
         .and_then(|body| body.first().copied())
         .filter(|index| *index > 0)
-        .unwrap_or(fallback)
+    }
+
+    pub(crate) fn feature(&mut self, id: u16, fallback: u8) -> u8 {
+        self.feature_optional(id).unwrap_or(fallback)
     }
 }
 
